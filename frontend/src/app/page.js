@@ -1,11 +1,13 @@
 'use client';
 
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import Navbar from '@/components/layout/Navbar';
-import MarketOverview from '@/components/dashboard/MarketOverview';
-import InsightFeed from '@/components/dashboard/InsightFeed';
 import { useClusterData } from '@/hooks/useClusterData';
 import Disclaimer from '@/components/layout/Disclaimer';
+
+const MarketOverview = dynamic(() => import('@/components/dashboard/MarketOverview'), { ssr: false });
+const InsightFeed = dynamic(() => import('@/components/dashboard/InsightFeed'), { ssr: false });
 
 export default function DashboardPage() {
   const [activeIndex, setActiveIndex] = useState('lq45');
