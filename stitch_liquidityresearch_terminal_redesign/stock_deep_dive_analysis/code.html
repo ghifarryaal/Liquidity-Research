@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LiquidityResearch - Expandable Stock Card</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@500;600&amp;family=Inter:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-on-surface": "#2c3135",
+                    "on-tertiary": "#472a00",
+                    "on-background": "#dee3e8",
+                    "error": "#ffb4ab",
+                    "on-secondary-fixed-variant": "#38485d",
+                    "surface": "#0f1418",
+                    "primary-fixed": "#c4e7ff",
+                    "on-surface": "#dee3e8",
+                    "secondary-container": "#3a4a5f",
+                    "surface-container-lowest": "#0a0f12",
+                    "on-error-container": "#ffdad6",
+                    "tertiary-fixed": "#ffddb8",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "surface-container-highest": "#303539",
+                    "surface-bright": "#343a3e",
+                    "on-tertiary-fixed": "#2a1700",
+                    "tertiary-container": "#f1a02b",
+                    "secondary-fixed-dim": "#b7c8e1",
+                    "on-error": "#690005",
+                    "outline": "#87929a",
+                    "secondary": "#b7c8e1",
+                    "surface-dim": "#0f1418",
+                    "outline-variant": "#3e484f",
+                    "background": "#0f1418",
+                    "inverse-primary": "#00668a",
+                    "on-primary-fixed": "#001e2c",
+                    "tertiary": "#ffc176",
+                    "error-container": "#93000a",
+                    "surface-container": "#1b2024",
+                    "on-primary-fixed-variant": "#004c69",
+                    "on-primary": "#00354a",
+                    "on-secondary-fixed": "#0b1c30",
+                    "on-secondary": "#213145",
+                    "on-tertiary-container": "#613b00",
+                    "surface-variant": "#303539",
+                    "primary": "#8ed5ff",
+                    "surface-container-high": "#252b2e",
+                    "surface-container-low": "#171c20",
+                    "on-surface-variant": "#bdc8d1",
+                    "inverse-surface": "#dee3e8",
+                    "secondary-fixed": "#d3e4fe",
+                    "tertiary-fixed-dim": "#ffb960",
+                    "on-primary-container": "#004965",
+                    "surface-tint": "#7bd0ff",
+                    "primary-container": "#38bdf8",
+                    "primary-fixed-dim": "#7bd0ff",
+                    "on-secondary-container": "#a9bad3"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "container-padding": "24px",
+                    "section-margin": "32px",
+                    "unit": "4px",
+                    "gutter": "16px",
+                    "component-gap-md": "12px",
+                    "component-gap-sm": "8px"
+            },
+            "fontFamily": {
+                    "heading-table": [
+                            "Inter"
+                    ],
+                    "data-mono": [
+                            "Geist Mono"
+                    ],
+                    "ticker-lg": [
+                            "Geist Mono"
+                    ],
+                    "display-sm": [
+                            "Inter"
+                    ],
+                    "body-standard": [
+                            "Inter"
+                    ]
+            },
+            "fontSize": {
+                    "heading-table": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "data-mono": [
+                            "13px",
+                            {
+                                    "lineHeight": "18px",
+                                    "letterSpacing": "-0.01em",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "ticker-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "display-sm": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-standard": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "fontWeight": "400"
+                            }
+                    ]
+            }
+        },
+        },
+      }
+    </script>
+<style>
+        /* Custom Tooltip Styling */
+        .tooltip-trigger {
+            position: relative;
+            cursor: help;
+            border-bottom: 1px dotted theme('colors.outline');
+        }
+        .tooltip-trigger .tooltip-content {
+            visibility: hidden;
+            background-color: theme('colors.surface-container-highest');
+            color: theme('colors.on-surface');
+            text-align: left;
+            padding: 8px 12px;
+            border-radius: theme('borderRadius.DEFAULT');
+            border: 1px solid theme('colors.outline-variant');
+            position: absolute;
+            z-index: 10;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.2s, visibility 0.2s;
+            width: max-content;
+            max-width: 250px;
+            font-family: theme('fontFamily.body-standard');
+            font-size: 12px;
+            line-height: 1.4;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+        }
+        .tooltip-trigger:hover .tooltip-content {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen font-body-standard text-body-standard">
+<!-- TopNavBar -->
+<nav class="bg-surface-container-low dark:bg-surface-container-low fixed top-0 left-0 w-full z-50 flex justify-between items-center h-[48px] px-container-padding border-b border-outline-variant dark:border-outline-variant">
+<div class="flex items-center gap-6">
+<span class="text-ticker-lg font-ticker-lg text-primary dark:text-primary tracking-tight">LiquidityResearch</span>
+<div class="hidden md:flex gap-4">
+<a class="font-body-standard text-body-standard text-primary dark:text-primary border-b-2 border-primary pb-1 active:opacity-80 transition-opacity" href="#">Market</a>
+<a class="font-body-standard text-body-standard text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary transition-colors" href="#">Indices</a>
+<a class="font-body-standard text-body-standard text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary transition-colors" href="#">Watchlist</a>
+<a class="font-body-standard text-body-standard text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary transition-colors" href="#">Screener</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<!-- Search Bar (on_right) -->
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-size: 18px;">search</span>
+<input class="bg-surface border border-outline-variant rounded pl-8 pr-3 py-1 text-data-mono font-data-mono text-on-surface focus:border-primary focus:ring-0 w-48 transition-colors placeholder:text-on-surface-variant/50" placeholder="Search ticker..." type="text"/>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center w-8 h-8 rounded hover:bg-surface-variant">
+<span class="material-symbols-outlined" style="font-size: 18px; font-variation-settings: 'FILL' 0, 'wght' 300;">schedule</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center w-8 h-8 rounded hover:bg-surface-variant">
+<span class="material-symbols-outlined" style="font-size: 18px; font-variation-settings: 'FILL' 0, 'wght' 300;">sensors</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center w-8 h-8 rounded hover:bg-surface-variant">
+<span class="material-symbols-outlined" style="font-size: 18px; font-variation-settings: 'FILL' 0, 'wght' 300;">account_circle</span>
+</button>
+</div>
+</nav>
+<!-- SideNavBar (Hidden on smaller screens, shown on lg) -->
+<aside class="bg-surface-container dark:bg-surface-container hidden lg:flex flex-col h-screen fixed left-0 top-[48px] py-4 border-r border-outline-variant dark:border-outline-variant w-[240px]">
+<div class="px-4 mb-6 flex flex-col gap-1">
+<h2 class="font-heading-table text-heading-table text-on-surface uppercase tracking-wider">Institutional Terminal</h2>
+<p class="text-xs text-on-surface-variant">Premium Access</p>
+</div>
+<nav class="flex-1 flex flex-col gap-2">
+<a class="flex items-center gap-3 font-body-standard text-body-standard text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-variant mx-2 px-3 py-2 rounded-lg transition-all active:scale-100 scale-95" href="#">
+<span class="material-symbols-outlined" style="font-size: 18px;">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 font-body-standard text-body-standard bg-secondary-container dark:bg-secondary-container text-on-secondary-container rounded-lg mx-2 px-3 py-2 transition-all active:scale-100 scale-95" href="#">
+<span class="material-symbols-outlined" style="font-size: 18px; font-variation-settings: 'FILL' 1;">account_balance_wallet</span>
+                Portfolio
+            </a>
+<a class="flex items-center gap-3 font-body-standard text-body-standard text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-variant mx-2 px-3 py-2 rounded-lg transition-all active:scale-100 scale-95" href="#">
+<span class="material-symbols-outlined" style="font-size: 18px;">psychology</span>
+                Analyst Desk
+            </a>
+<a class="flex items-center gap-3 font-body-standard text-body-standard text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-variant mx-2 px-3 py-2 rounded-lg transition-all active:scale-100 scale-95" href="#">
+<span class="material-symbols-outlined" style="font-size: 18px;">public</span>
+                Macro
+            </a>
+<a class="flex items-center gap-3 font-body-standard text-body-standard text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-variant mx-2 px-3 py-2 rounded-lg transition-all active:scale-100 scale-95" href="#">
+<span class="material-symbols-outlined" style="font-size: 18px;">settings</span>
+                Settings
+            </a>
+</nav>
+<div class="mt-auto flex flex-col gap-2">
+<div class="px-4 mb-4">
+<button class="w-full bg-primary-container text-on-primary-container font-heading-table text-heading-table py-2 rounded hover:brightness-110 transition-all uppercase">Upgrade to Pro</button>
+</div>
+<a class="flex items-center gap-3 font-body-standard text-body-standard text-on-surface-variant hover:bg-surface-variant mx-2 px-3 py-2 rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined" style="font-size: 18px;">help</span>
+                Support
+            </a>
+<a class="flex items-center gap-3 font-body-standard text-body-standard text-on-surface-variant hover:bg-surface-variant mx-2 px-3 py-2 rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined" style="font-size: 18px;">logout</span>
+                Logout
+            </a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="pt-[48px] lg:pl-[240px] min-h-screen flex flex-col">
+<div class="flex-1 p-container-padding flex justify-center items-start overflow-y-auto">
+<!-- Expandable Stock Card Container -->
+<div class="w-full max-w-5xl bg-surface-container rounded-lg border border-outline-variant flex flex-col gap-component-gap-md p-6">
+<!-- Top: Header / Summary -->
+<header class="flex justify-between items-end border-b border-outline-variant pb-4">
+<div class="flex flex-col gap-1">
+<div class="flex items-baseline gap-3">
+<h1 class="font-ticker-lg text-ticker-lg text-primary uppercase tracking-tight">BBCA</h1>
+<span class="font-heading-table text-heading-table text-on-surface-variant">PT Bank Central Asia Tbk</span>
+</div>
+<div class="flex items-baseline gap-2">
+<span class="font-display-sm text-display-sm text-on-surface">Rp 10,250</span>
+<span class="font-data-mono text-data-mono text-primary flex items-center">
+<span class="material-symbols-outlined text-[14px]">arrow_upward</span>
+                                1.25% (+125)
+                            </span>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex items-center justify-center w-8 h-8 rounded border border-outline-variant text-on-surface-variant hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined" style="font-size: 18px;">bookmark</span>
+</button>
+<button class="flex items-center justify-center w-8 h-8 rounded border border-outline-variant text-on-surface-variant hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined" style="font-size: 18px;">open_in_full</span>
+</button>
+</div>
+</header>
+<!-- Main Section: Two Columns -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+<!-- Left Column: Chart Area (Span 2) -->
+<div class="lg:col-span-2 bg-surface rounded border border-outline-variant p-4 flex flex-col gap-3 min-h-[300px]">
+<div class="flex justify-between items-center">
+<h3 class="font-heading-table text-heading-table text-on-surface uppercase">Price Action</h3>
+<div class="flex gap-2">
+<span class="font-data-mono text-data-mono text-on-surface-variant text-xs px-2 py-1 bg-surface-container-highest rounded">1D</span>
+<span class="font-data-mono text-data-mono text-primary text-xs px-2 py-1 bg-surface-container-highest rounded border border-primary/30">1W</span>
+<span class="font-data-mono text-data-mono text-on-surface-variant text-xs px-2 py-1 bg-surface-container-highest rounded">1M</span>
+</div>
+</div>
+<!-- Chart Legend / Overlays -->
+<div class="flex gap-4 font-data-mono text-data-mono text-xs">
+<span class="text-tertiary flex items-center gap-1"><div class="w-2 h-0.5 bg-tertiary"></div> EMA(20)</span>
+<span class="text-inverse-primary flex items-center gap-1"><div class="w-2 h-0.5 bg-inverse-primary"></div> BB(20,2)</span>
+</div>
+<!-- Chart Canvas Placeholder -->
+<div class="flex-1 w-full bg-surface-container-lowest rounded border border-outline-variant/50 relative overflow-hidden flex items-center justify-center group">
+<!-- Simulated grid lines -->
+<div class="absolute inset-0 bg-[linear-gradient(to_right,#334155_1px,transparent_1px),linear-gradient(to_bottom,#334155_1px,transparent_1px)] bg-[size:40px_40px] opacity-20"></div>
+<img alt="Financial stock market candlestick chart display" class="w-full h-full object-cover opacity-60 mix-blend-screen group-hover:opacity-80 transition-opacity" data-alt="A macro photography shot of a digital financial chart displayed on a high-resolution dark monitor screen. Thin, sharp candlestick patterns are visible in bright green and red against a deep obsidian black background. Overlaying the price action are smooth, glowing lines representing moving averages in stark neon orange and icy cyan. The lighting is completely dark around the screen, emphasizing the stark, clinical precision of institutional trading software without any whimsical or consumer-friendly elements. High density information layout." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBq-2MQhbl2NmMMF-bEVcFTGwJhXZgqHZmgsydJgeeZxQNs4WLUG7sdp0tJZfrgYEoWj_Vor8JEAHKVVZbvt_42Hz4iySNdMkIJPpe--WvDJc37V84uPWRb_by3XKgaj_9DWTZI9z0cYI2O2NSJ-qQ3C0bphdUfW5s47xS6WiUfyhbDLHe12TUfi17Tga5LKiIdwQ9E90RYLEhNWvaRf0J-Axpt4rkmmCi4lbe4DsenzCgvkq0J1B512BCtMrWV0_MViQzYZm1qULH1"/>
+<div class="absolute bottom-2 right-2 font-data-mono text-data-mono text-xs text-on-surface-variant/50">Chart Interactive Mode</div>
+</div>
+</div>
+<!-- Right Column: Technical Snapshot -->
+<div class="lg:col-span-1 bg-surface rounded border border-outline-variant p-4 flex flex-col gap-4">
+<h3 class="font-heading-table text-heading-table text-on-surface uppercase border-b border-outline-variant pb-2">Technical Snapshot</h3>
+<div class="flex flex-col gap-3">
+<!-- Indicator Item -->
+<div class="flex justify-between items-center group p-2 hover:bg-surface-variant/50 rounded transition-colors">
+<span class="font-heading-table text-heading-table text-on-surface-variant tooltip-trigger">
+                                    RSI (14)
+                                    <div class="tooltip-content">Relative Strength Index. Indikator momentum yang mengukur besaran perubahan harga terbaru untuk mengevaluasi kondisi overbought (jenuh beli) atau oversold (jenuh jual).</div>
+</span>
+<div class="flex items-center gap-2">
+<span class="font-data-mono text-data-mono text-on-surface">62.4</span>
+<span class="text-[10px] uppercase font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded">Bullish</span>
+</div>
+</div>
+<!-- Indicator Item -->
+<div class="flex justify-between items-center group p-2 hover:bg-surface-variant/50 rounded transition-colors">
+<span class="font-heading-table text-heading-table text-on-surface-variant tooltip-trigger">
+                                    MACD (12,26)
+                                    <div class="tooltip-content">Moving Average Convergence Divergence. Indikator momentum mengikuti tren yang menunjukkan hubungan antara dua rata-rata pergerakan harga.</div>
+</span>
+<div class="flex items-center gap-2">
+<span class="font-data-mono text-data-mono text-on-surface">+125.4</span>
+<span class="text-[10px] uppercase font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded">Cross Up</span>
+</div>
+</div>
+<!-- Indicator Item -->
+<div class="flex justify-between items-center group p-2 hover:bg-surface-variant/50 rounded transition-colors">
+<span class="font-heading-table text-heading-table text-on-surface-variant tooltip-trigger">
+                                    Vol Ratio
+                                    <div class="tooltip-content">Rasio Volume perdagangan saat ini dibandingkan dengan rata-rata volume historis. Rasio &gt; 1 menunjukkan aktivitas di atas normal.</div>
+</span>
+<div class="flex items-center gap-2">
+<span class="font-data-mono text-data-mono text-on-surface">1.4x</span>
+<span class="text-[10px] uppercase font-bold text-tertiary bg-tertiary/10 px-1.5 py-0.5 rounded">Elevated</span>
+</div>
+</div>
+<!-- Indicator Item -->
+<div class="flex justify-between items-center group p-2 hover:bg-surface-variant/50 rounded transition-colors">
+<span class="font-heading-table text-heading-table text-on-surface-variant tooltip-trigger">
+                                    ATR (14)
+                                    <div class="tooltip-content">Average True Range. Indikator volatilitas pasar yang mengukur kisaran pergerakan harga historis untuk mengukur potensi pergerakan hari ini.</div>
+</span>
+<div class="flex items-center gap-2">
+<span class="font-data-mono text-data-mono text-on-surface">150.0</span>
+<span class="text-[10px] uppercase font-bold text-on-surface-variant bg-surface-variant px-1.5 py-0.5 rounded">Normal</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom: Analyst Desk Brief -->
+<div class="bg-surface rounded border border-outline-variant p-5 flex flex-col gap-4 mt-2">
+<div class="flex justify-between items-center border-b border-outline-variant pb-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" style="font-size: 20px;">psychology</span>
+<h3 class="font-heading-table text-heading-table text-on-surface uppercase tracking-wider">Analyst Desk Briefing</h3>
+</div>
+<div class="flex items-center gap-3">
+<span class="font-heading-table text-heading-table text-on-surface-variant">AI Confidence</span>
+<div class="flex items-center gap-2">
+<!-- Progress Bar Track -->
+<div class="w-24 h-[6px] bg-outline-variant rounded-full overflow-hidden">
+<!-- Progress Bar Fill -->
+<div class="h-full bg-primary" style="width: 85%;"></div>
+</div>
+<span class="font-data-mono text-data-mono text-primary text-xs">85%</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+<div class="md:col-span-1 flex flex-col gap-2">
+<span class="font-heading-table text-heading-table text-on-surface-variant uppercase">Strategy</span>
+<div class="inline-flex items-center justify-center px-4 py-2 bg-primary/10 border border-primary text-primary font-bold tracking-widest uppercase rounded">
+                                Accumulate
+                            </div>
+</div>
+<div class="md:col-span-3 flex flex-col gap-2">
+<span class="font-heading-table text-heading-table text-on-surface-variant uppercase">Rationale</span>
+<p class="font-body-standard text-body-standard text-on-surface leading-relaxed text-sm">
+                                Tekanan beli institusional terlihat konsisten di sekitar level support dinamis EMA-20. Momentum bullish dikonfirmasi oleh indikator MACD yang baru saja mencetak <i>golden cross</i> di atas garis nol, didukung oleh lonjakan rasio volume harian sebesar 1.4x rata-rata historis. Kondisi makro yang mendukung stabilitas suku bunga berpotensi menjadi katalis positif lanjutan untuk sektor perbankan inti. Target harga jangka pendek diestimasi pada level resistensi Rp 10,500.
+                            </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

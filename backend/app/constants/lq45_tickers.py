@@ -1,0 +1,55 @@
+"""
+LQ45 Index Constituents — Updated May 2026
+Using Indonesian Industry Naming (IDX Standard).
+"""
+
+LQ45_TICKERS: list[dict] = [
+    {"ticker": "AADI.JK",  "name": "Adaro Andalan Indonesia",        "sector": "Energi"},
+    {"ticker": "ADMR.JK",  "name": "Adaro Minerals Indonesia",       "sector": "Energi"},
+    {"ticker": "ADRO.JK",  "name": "Adaro Energy Indonesia",         "sector": "Energi"},
+    {"ticker": "AKRA.JK",  "name": "AKR Corporindo",                 "sector": "Perindustrian"},
+    {"ticker": "AMMN.JK",  "name": "Amman Mineral Internasional",    "sector": "Barang Baku"},
+    {"ticker": "AMRT.JK",  "name": "Sumber Alfaria Trijaya",         "sector": "Barang Konsumsi Primer"},
+    {"ticker": "ANTM.JK",  "name": "Aneka Tambang",                  "sector": "Barang Baku"},
+    {"ticker": "ASII.JK",  "name": "Astra International",            "sector": "Barang Konsumsi Sekunder"},
+    {"ticker": "BBCA.JK",  "name": "Bank Central Asia",              "sector": "Keuangan"},
+    {"ticker": "BBNI.JK",  "name": "Bank Negara Indonesia",          "sector": "Keuangan"},
+    {"ticker": "BBRI.JK",  "name": "Bank Rakyat Indonesia",          "sector": "Keuangan"},
+    {"ticker": "BBTN.JK",  "name": "Bank Tabungan Negara",           "sector": "Keuangan"},
+    {"ticker": "BMRI.JK",  "name": "Bank Mandiri",                   "sector": "Keuangan"},
+    {"ticker": "BRPT.JK",  "name": "Barito Pacific",                "sector": "Barang Baku"},
+    {"ticker": "BUMI.JK",  "name": "Bumi Resources",                 "sector": "Energi"},
+    {"ticker": "CPIN.JK",  "name": "Charoen Pokphand Indonesia",    "sector": "Barang Konsumsi Primer"},
+    {"ticker": "CUAN.JK",  "name": "Petrindo Jaya Kreasi",           "sector": "Energi"},
+    {"ticker": "DEWA.JK",  "name": "Darma Henwa",                    "sector": "Energi"},
+    {"ticker": "EMTK.JK",  "name": "Elang Mahkota Teknologi",        "sector": "Infrastruktur"},
+    {"ticker": "ESSA.JK",  "name": "ESSA Industries Indonesia",      "sector": "Energi"},
+    {"ticker": "EXCL.JK",  "name": "XL Axiata",                      "sector": "Infrastruktur"},
+    {"ticker": "GOTO.JK",  "name": "GoTo Gojek Tokopedia",           "sector": "Infrastruktur"},
+    {"ticker": "HRTA.JK",  "name": "Hartadinata Abadi",              "sector": "Barang Konsumsi Sekunder"},
+    {"ticker": "ICBP.JK",  "name": "Indofood CBP Sukses Makmur",    "sector": "Barang Konsumsi Primer"},
+    {"ticker": "INCO.JK",  "name": "Vale Indonesia",                 "sector": "Barang Baku"},
+    {"ticker": "INDF.JK",  "name": "Indofood Sukses Makmur",         "sector": "Barang Konsumsi Primer"},
+    {"ticker": "INKP.JK",  "name": "Indah Kiat Pulp & Paper",       "sector": "Barang Baku"},
+    {"ticker": "ISAT.JK",  "name": "Indosat",                        "sector": "Infrastruktur"},
+    {"ticker": "ITMG.JK",  "name": "Indo Tambangraya Megah",         "sector": "Energi"},
+    {"ticker": "JPFA.JK",  "name": "Japfa Comfeed Indonesia",       "sector": "Barang Konsumsi Primer"},
+    {"ticker": "KLBF.JK",  "name": "Kalbe Farma",                   "sector": "Kesehatan"},
+    {"ticker": "MAPI.JK",  "name": "Mitra Adiperkasa",              "sector": "Barang Konsumsi Sekunder"},
+    {"ticker": "MBMA.JK",  "name": "Merdeka Battery Materials",     "sector": "Barang Baku"},
+    {"ticker": "MDKA.JK",  "name": "Merdeka Copper Gold",           "sector": "Barang Baku"},
+    {"ticker": "MEDC.JK",  "name": "Medco Energi Internasional",    "sector": "Energi"},
+    {"ticker": "PGAS.JK",  "name": "Perusahaan Gas Negara",         "sector": "Infrastruktur"},
+    {"ticker": "PGEO.JK",  "name": "Pertamina Geothermal Energy",    "sector": "Infrastruktur"},
+    {"ticker": "PTBA.JK",  "name": "Bukit Asam",                    "sector": "Energi"},
+    {"ticker": "SCMA.JK",  "name": "Surya Citra Media",             "sector": "Infrastruktur"},
+    {"ticker": "SMGR.JK",  "name": "Semen Indonesia",               "sector": "Barang Baku"},
+    {"ticker": "TLKM.JK",  "name": "Telkom Indonesia",              "sector": "Infrastruktur"},
+    {"ticker": "TOWR.JK",  "name": "Sarana Menara Nusantara",       "sector": "Infrastruktur"},
+    {"ticker": "UNTR.JK",  "name": "United Tractors",               "sector": "Perindustrian"},
+    {"ticker": "UNVR.JK",  "name": "Unilever Indonesia",            "sector": "Barang Konsumsi Primer"},
+    {"ticker": "WIFI.JK",  "name": "Solusi Sinergi Digital",         "sector": "Infrastruktur"},
+]
+
+LQ45_TICKER_SYMBOLS: list[str] = [t["ticker"] for t in LQ45_TICKERS]
+LQ45_TICKER_META: dict[str, dict] = {t["ticker"]: t for t in LQ45_TICKERS}
