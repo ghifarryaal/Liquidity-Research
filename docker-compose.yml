@@ -4,8 +4,6 @@ services:
     restart: always
     ports:
       - "8001:8000"
-    extra_hosts:
-      - "72.60.74.199:host-gateway"
     environment:
       - GEMINI_API_KEY=${GEMINI_API_KEY}
     networks:
@@ -19,11 +17,8 @@ services:
     restart: always
     ports:
       - "3001:3000"
-    extra_hosts:
-      - "72.60.74.199:host-gateway"
     environment:
       - NEXT_PUBLIC_API_URL=http://72.60.74.199:8001
-      - INTERNAL_API_URL=http://backend:8000
     depends_on:
       - backend
     networks:
