@@ -10,7 +10,10 @@ services:
       - liquidity_net
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        - NEXT_PUBLIC_API_URL=http://72.60.74.199:8001
     restart: always
     ports:
       - "3001:3000"
