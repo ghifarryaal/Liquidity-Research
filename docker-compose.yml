@@ -23,6 +23,7 @@ services:
       - "72.60.74.199:host-gateway"
     environment:
       - NEXT_PUBLIC_API_URL=http://72.60.74.199:8001
+      - INTERNAL_API_URL=http://backend:8000
     depends_on:
       - backend
     networks:
