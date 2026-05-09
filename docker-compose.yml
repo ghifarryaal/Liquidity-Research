@@ -1,0 +1,26 @@
+services:
+  backend:
+    build: ./backend
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    networks:
+      - liquidity_net
+
+  frontend:
+    build: ./frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://72.60.74.199:8000
+    depends_on:
+      - backend
+    networks:
+      - liquidity_net
+
+networks:
+  liquidity_net:
+    driver: bridge
