@@ -19,7 +19,7 @@ export function MentorProvider({ children }) {
 
   // Stable session ID for rate-limiting (per browser tab)
   const sessionId = useRef(
-    typeof crypto !== 'undefined'
+    (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function')
       ? crypto.randomUUID()
       : Math.random().toString(36).slice(2)
   ).current;
