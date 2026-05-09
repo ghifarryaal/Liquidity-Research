@@ -13,12 +13,12 @@ services:
     build:
       context: ./frontend
       args:
-        - NEXT_PUBLIC_API_URL=https://quant.indonesiastockanalyst.my.id/api
+        - NEXT_PUBLIC_API_URL=http://72.60.74.199:8001
     restart: always
     ports:
       - "3001:3000"
     environment:
-      - NEXT_PUBLIC_API_URL=https://quant.indonesiastockanalyst.my.id/api
+      - NEXT_PUBLIC_API_URL=http://72.60.74.199:8001
       - INTERNAL_API_URL=http://backend:8000
     depends_on:
       - backend
