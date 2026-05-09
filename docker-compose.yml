@@ -3,7 +3,7 @@ services:
     build: ./backend
     restart: always
     ports:
-      - "8000:8000"
+      - "8001:8000"
     environment:
       - GEMINI_API_KEY=${GEMINI_API_KEY}
     networks:
@@ -15,7 +15,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - NEXT_PUBLIC_API_URL=http://72.60.74.199:8000
+      - NEXT_PUBLIC_API_URL=http://72.60.74.199:8001
     depends_on:
       - backend
     networks:
