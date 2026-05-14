@@ -349,48 +349,52 @@ async def get_stock_detail(
     all_meta = {**LQ45_TICKER_META, **KOMPAS100_TICKER_META, **DBX_TICKER_META}
     meta = all_meta.get(ticker, {"name": ticker, "sector": "Unknown"})
 
-    return StockDetailResponse(
-        ticker=ticker,
-        name=meta.get("name", ticker),
-        sector=meta.get("sector", "Unknown"),
-        ohlcv=ohlcv_bars,
-        ema_20_series=series.get("ema_20", []),
-        ema_50_series=series.get("ema_50", []),
-        bb_upper_series=series.get("bb_upper", []),
-        bb_middle_series=series.get("bb_middle", []),
-        bb_lower_series=series.get("bb_lower", []),
-        current_price=price_info["current_price"],
-        price_change_pct=price_info["price_change_pct"],
-        week_change_pct=price_info["week_change_pct"],
-        month_change_pct=price_info["month_change_pct"],
-        volume=price_info["volume"],
-        cluster_label=label,
-        cluster_color=CLUSTER_CONFIG[label]["color"],
-        strategy=strategy,
-        reasoning=reasoning,
-        confidence=0.85, # Constant for single view
-        take_profit=risk["take_profit"],
-        stop_loss=risk["stop_loss"],
-        trading_style=risk["trading_style"],
-        trade_plan=TradePlan(**plan_raw) if plan_raw else None,
-        backtest=BacktestResult(**bt_raw) if bt_raw else None,
-        confidence_score=0.78,  # Mocked for single view, usually > 0.75 for these setups
-        is_high_conviction=True,
-        indicators=TechnicalIndicators(
-            rsi=ind.get("rsi"),
-            macd=ind.get("macd"),
-            macd_signal=ind.get("macd_signal"),
-            macd_hist=ind.get("macd_hist"),
-            ema_20=ind.get("ema_20"),
-            ema_50=ind.get("ema_50"),
-            bb_upper=ind.get("bb_upper"),
-            bb_middle=ind.get("bb_middle"),
-            bb_lower=ind.get("bb_lower"),
-            bb_width=ind.get("bb_width"),
-            atr=ind.get("atr"),
-            volume_ratio=ind.get("volume_ratio"),
+    try:
+        return StockDetailResponse(
+            ticker=ticker,
+            name=meta.get("name", ticker),
+            sector=meta.get("sector", "Unknown"),
+            ohlcv=ohlcv_bars,
+            ema_20_series=series.get("ema_20", []),
+            ema_50_series=series.get("ema_50", []),
+            bb_upper_series=series.get("bb_upper", []),
+            bb_middle_series=series.get("bb_middle", []),
+            bb_lower_series=series.get("bb_lower", []),
+            current_price=price_info["current_price"],
+            price_change_pct=price_info["price_change_pct"],
+            week_change_pct=price_info["week_change_pct"],
+            month_change_pct=price_info["month_change_pct"],
+            volume=price_info["volume"],
+            cluster_label=label,
+            cluster_color=CLUSTER_CONFIG[label]["color"],
+            strategy=strategy,
+            reasoning=reasoning,
+            confidence=0.85, # Constant for single view
+            take_profit=risk["take_profit"],
+            stop_loss=risk["stop_loss"],
+            trading_style=risk["trading_style"],
+            trade_plan=TradePlan(**plan_raw) if plan_raw else None,
+            backtest=BacktestResult(**bt_raw) if bt_raw else None,
+            confidence_score=0.78,  # Mocked for single view, usually > 0.75 for these setups
+            is_high_conviction=True,
+            indicators=TechnicalIndicators(
+                rsi=ind.get("rsi"),
+                macd=ind.get("macd"),
+                macd_signal=ind.get("macd_signal"),
+                macd_hist=ind.get("macd_hist"),
+                ema_20=ind.get("ema_20"),
+                ema_50=ind.get("ema_50"),
+                bb_upper=ind.get("bb_upper"),
+                bb_middle=ind.get("bb_middle"),
+                bb_lower=ind.get("bb_lower"),
+                bb_width=ind.get("bb_width"),
+                atr=ind.get("atr"),
+                volume_ratio=ind.get("volume_ratio"),
+            )
         )
-    )
+    except Exception as e:
+        logger.error(f"Error constructing StockDetailResponse for {ticker}: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
 
 # ---------------------------------------------------------------------------
