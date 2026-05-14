@@ -377,20 +377,7 @@ async def get_stock_detail(
             backtest=BacktestResult(**bt_raw) if bt_raw else None,
             confidence_score=0.78,  # Mocked for single view, usually > 0.75 for these setups
             is_high_conviction=True,
-            indicators=TechnicalIndicators(
-                rsi=ind.get("rsi"),
-                macd=ind.get("macd"),
-                macd_signal=ind.get("macd_signal"),
-                macd_hist=ind.get("macd_hist"),
-                ema_20=ind.get("ema_20"),
-                ema_50=ind.get("ema_50"),
-                bb_upper=ind.get("bb_upper"),
-                bb_middle=ind.get("bb_middle"),
-                bb_lower=ind.get("bb_lower"),
-                bb_width=ind.get("bb_width"),
-                atr=ind.get("atr"),
-                volume_ratio=ind.get("volume_ratio"),
-            )
+            indicators=TechnicalIndicators(**{k: v for k, v in ind.items() if v is not None})
         )
     except Exception as e:
         logger.error(f"Error constructing StockDetailResponse for {ticker}: {str(e)}")

@@ -18,7 +18,7 @@ export default function StockDetailPage({ params }) {
   const ticker = resolvedParams.ticker.toUpperCase();
   const fullTicker = ticker.endsWith('.JK') ? ticker : `${ticker}.JK`;
   
-  const { detail, ohlcv, ema20, ema50, bbUpper, bbMiddle, bbLower, isLoading, isError } =
+  const { detail, ohlcv, ema20, ema50, bbUpper, bbMiddle, bbLower, isLoading, isError, error } =
     useStockDetail(fullTicker);
 
   if (isLoading) {
@@ -37,8 +37,10 @@ export default function StockDetailPage({ params }) {
       <div className="min-h-screen bg-background flex items-center justify-center p-6">
         <div className="max-w-md w-full bg-surface-container rounded-lg border border-error/30 p-8 text-center">
           <span className="material-symbols-outlined text-error text-5xl mb-4">warning</span>
-          <h1 className="text-display-sm text-on-surface mb-2">Data Tidak Ditemukan</h1>
-          <p className="text-on-surface-variant mb-6">Maaf, emiten {ticker} tidak dapat ditemukan atau sedang mengalami gangguan data.</p>
+          <h1 className="text-display-sm text-on-surface mb-2">Terjadi Kesalahan</h1>
+          <p className="text-on-surface-variant mb-6 text-sm italic">
+            {error?.message || "Maaf, emiten ini tidak dapat ditemukan atau sedang mengalami gangguan data."}
+          </p>
           <button onClick={() => router.push('/')} className="px-6 py-2 bg-primary text-on-primary rounded font-bold uppercase tracking-widest text-xs">
             Kembali ke Dashboard
           </button>
