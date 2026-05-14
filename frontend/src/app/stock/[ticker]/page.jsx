@@ -1,7 +1,5 @@
 'use client';
 
-export const runtime = 'edge';
-
 import { useStockDetail } from '@/hooks/useStockDetail';
 import CandlestickChart from '@/components/charts/CandlestickChart';
 import { formatPrice, formatPct, rsiLabel } from '@/lib/formatters';
