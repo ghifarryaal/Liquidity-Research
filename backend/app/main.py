@@ -44,6 +44,7 @@ app.add_middleware(
 # ---------------------------------------------------------------------------
 
 app.include_router(cluster.router, prefix="/api", tags=["Clustering"])
+app.include_router(cluster.router, tags=["Clustering Alias"]) # Alias without /api prefix
 app.include_router(chat.router, prefix="/api", tags=["AI Mentor"])
 
 # ---------------------------------------------------------------------------
