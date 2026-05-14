@@ -49,13 +49,14 @@ export default function StockDetailPage({ params }) {
     );
   }
 
-  const stock = detail;
-  const rsi = rsiLabel(stock.indicators?.rsi);
-  const macdBull = stock.indicators?.macd != null &&
-    stock.indicators?.macd_signal != null &&
-    stock.indicators.macd > stock.indicators.macd_signal;
+  const stock = detail || {};
+  const indicators = stock.indicators || {};
+  const rsi = rsiLabel(indicators.rsi);
+  const macdBull = indicators.macd != null &&
+    indicators.macd_signal != null &&
+    indicators.macd > indicators.macd_signal;
     
-  const volRatio = stock.indicators?.volume_ratio || 0;
+  const volRatio = indicators.volume_ratio || 0;
 
   return (
     <div className="min-h-screen bg-background text-on-background p-4 md:p-8 pt-[104px]">
