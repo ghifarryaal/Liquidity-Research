@@ -296,66 +296,65 @@ async def get_stock_detail(
     if not ticker.endswith(".JK"):
         ticker = f"{ticker}.JK"
 
-    df = await fetch_single_ticker(ticker, period_days)
-    if df is None or df.empty:
-        raise HTTPException(status_code=404, detail=f"No data found for {ticker}")
-
-    # Compute indicators and features
-    ind = compute_indicators(df)
-    if not ind:
-        raise HTTPException(status_code=422, detail=f"Could not compute indicators for {ticker}")
-
-    # Build OHLCV bars for charting
-    ohlcv_bars = [
-        OHLCVBar(
-            time=str(row.name.date()),
-            open=round(float(row["Open"]), 2),
-            high=round(float(row["High"]), 2),
-            low=round(float(row["Low"]), 2),
-            close=round(float(row["Close"]), 2),
-            volume=int(row["Volume"]),
-        )
-        for _, row in df.iterrows()
-    ]
-
-    series = ind.get("series", {})
-    from app.services.data_fetcher import get_latest_price_info
-    price_info = get_latest_price_info(df)
-
-    # Simplified Cluster Label for single stock (rule-based)
-    # We use a similar logic to _map_centroids_to_labels but for a single vector
-    rsi = ind.get("rsi", 50)
-    bb_pos = ind.get("bb_position", 0.5)
-    ema20_gap = ind.get("ema_20_gap", 0)
-    
-    if rsi > 60 and bb_pos > 0.6:
-        label = "Trending / Momentum"
-    elif rsi < 40 and bb_pos < 0.4:
-        label = "Buy the Dip"
-    elif rsi > 75 or ind.get("bb_width", 0) > 15:
-        label = "High Risk / Avoid"
-    else:
-        label = "Hold / Sideways"
-
-    from app.services.clustering_engine import CLUSTER_CONFIG, generate_reasoning, calculate_risk_management
-    from app.services.trade_plan_engine import calculate_trade_plan
-    from app.services.backtest_engine import run_backtest
-    
-    strategy, reasoning = generate_reasoning(label, ind)
-    risk = calculate_risk_management(label, price_info["current_price"], ind.get("atr"))
-    plan_raw = calculate_trade_plan(df, ind, label, index_name="lq45") # Default for single view
-    bt_raw = run_backtest(df)
-
-    all_meta = {**LQ45_TICKER_META, **KOMPAS100_TICKER_META, **DBX_TICKER_META}
-    meta = all_meta.get(ticker, {"name": ticker, "sector": "Unknown"})
-
-    current_price = price_info.get("current_price") or 0.0
-    price_change = price_info.get("price_change_pct") or 0.0
-    week_change = price_info.get("week_change_pct") or 0.0
-    month_change = price_info.get("month_change_pct") or 0.0
-    vol = price_info.get("volume") or 0
-    
     try:
+        # 1. Fetch data
+        df = await fetch_single_ticker(ticker, period_days)
+        if df is None or df.empty:
+            raise HTTPException(status_code=404, detail=f"No data found for {ticker}")
+
+        # 2. Compute indicators and features
+        ind = compute_indicators(df)
+        if not ind:
+            raise HTTPException(status_code=422, detail=f"Could not compute indicators for {ticker}")
+
+        # 3. Build OHLCV bars for charting
+        ohlcv_bars = [
+            OHLCVBar(
+                time=str(row.name.date()),
+                open=round(float(row["Open"]), 2),
+                high=round(float(row["High"]), 2),
+                low=round(float(row["Low"]), 2),
+                close=round(float(row["Close"]), 2),
+                volume=int(row["Volume"]),
+            )
+            for _, row in df.iterrows()
+        ]
+
+        series = ind.get("series", {})
+        from app.services.data_fetcher import get_latest_price_info
+        price_info = get_latest_price_info(df)
+
+        # 4. Simplified Cluster Label for single stock (rule-based)
+        rsi = ind.get("rsi", 50)
+        bb_pos = ind.get("bb_position", 0.5)
+        
+        if rsi > 60 and bb_pos > 0.6:
+            label = "Trending / Momentum"
+        elif rsi < 40 and bb_pos < 0.4:
+            label = "Buy the Dip"
+        elif rsi > 75 or ind.get("bb_width", 0) > 15:
+            label = "High Risk / Avoid"
+        else:
+            label = "Hold / Sideways"
+
+        from app.services.clustering_engine import CLUSTER_CONFIG, generate_reasoning, calculate_risk_management
+        from app.services.trade_plan_engine import calculate_trade_plan
+        from app.services.backtest_engine import run_backtest
+        
+        strategy, reasoning = generate_reasoning(label, ind)
+        risk = calculate_risk_management(label, price_info.get("current_price", 0.0), ind.get("atr"))
+        plan_raw = calculate_trade_plan(df, ind, label, index_name="lq45")
+        bt_raw = run_backtest(df)
+
+        all_meta = {**LQ45_TICKER_META, **KOMPAS100_TICKER_META, **DBX_TICKER_META}
+        meta = all_meta.get(ticker, {"name": ticker, "sector": "Unknown"})
+
+        current_price = price_info.get("current_price") or 0.0
+        price_change = price_info.get("price_change_pct") or 0.0
+        week_change = price_info.get("week_change_pct") or 0.0
+        month_change = price_info.get("month_change_pct") or 0.0
+        vol = price_info.get("volume") or 0
+        
         # Construct indicators safely (only non-null values)
         ind_data = {k: v for k, v in ind.items() if v is not None}
         indicators_obj = TechnicalIndicators(**ind_data)
@@ -389,9 +388,13 @@ async def get_stock_detail(
             is_high_conviction=True,
             indicators=indicators_obj
         )
+    except HTTPException as he:
+        raise he
     except Exception as e:
-        logger.error(f"Error constructing StockDetailResponse for {ticker}: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+        import traceback
+        err_detail = f"Error in get_stock_detail: {str(e)}\n{traceback.format_exc()}"
+        logger.error(err_detail)
+        raise HTTPException(status_code=500, detail=err_detail)
 
 
 # ---------------------------------------------------------------------------

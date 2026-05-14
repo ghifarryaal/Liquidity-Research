@@ -38,7 +38,7 @@ export default function StockDetailPage({ params }) {
         <div className="max-w-md w-full bg-surface-container rounded-lg border border-error/30 p-8 text-center">
           <span className="material-symbols-outlined text-error text-5xl mb-4">warning</span>
           <h1 className="text-display-sm text-on-surface mb-2">Terjadi Kesalahan</h1>
-          <p className="text-on-surface-variant mb-6 text-sm italic">
+          <p className="text-on-surface-variant mb-6 text-sm italic whitespace-pre-wrap text-left max-h-[300px] overflow-auto bg-black/20 p-4 rounded">
             {error?.message || "Maaf, emiten ini tidak dapat ditemukan atau sedang mengalami gangguan data."}
           </p>
           <button onClick={() => router.push('/')} className="px-6 py-2 bg-primary text-on-primary rounded font-bold uppercase tracking-widest text-xs">
