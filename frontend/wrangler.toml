@@ -2,10 +2,11 @@
 name = "liquidity-research-frontend"
 compatibility_date = "2024-05-14"
 compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = ".vercel/output/static"
 
 [vars]
 NEXT_PUBLIC_API_URL = "http://72.60.74.199:8001"
 
 [build]
-command = "npm run build"
+command = "npx @cloudflare/next-on-pages@1"
 output_dir = ".vercel/output/static"
