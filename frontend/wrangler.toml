@@ -6,7 +6,3 @@ pages_build_output_dir = ".vercel/output/static"
 
 [vars]
 NEXT_PUBLIC_API_URL = "http://72.60.74.199:8001"
-
-[build]
-command = "npx @cloudflare/next-on-pages@1"
-output_dir = ".vercel/output/static"
