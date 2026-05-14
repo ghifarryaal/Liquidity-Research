@@ -5,7 +5,7 @@ Pydantic response models for the LiquidityResearch API.
 from __future__ import annotations
 
 from typing import Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 # ---------------------------------------------------------------------------
@@ -14,6 +14,9 @@ from pydantic import BaseModel, Field
 
 
 class TechnicalIndicators(BaseModel):
+    # Silently ignore extra fields from compute_indicators() like 'series', 'bb_position', etc.
+    model_config = ConfigDict(extra='ignore')
+
     rsi: Optional[float] = Field(None, description="RSI(14)")
     macd: Optional[float] = Field(None, description="MACD line")
     macd_signal: Optional[float] = Field(None, description="MACD signal line")
