@@ -7,15 +7,15 @@ import CandlestickChart from '@/components/charts/CandlestickChart';
 import { formatPrice, formatPct, rsiLabel } from '@/lib/formatters';
 import TradePlanTable from '@/components/dashboard/TradePlanTable';
 import BacktestScorecard from '@/components/dashboard/BacktestScorecard';
-import { use, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Disclaimer from '@/components/layout/Disclaimer';
 
-export default function StockDetailPage({ params }) {
+export default function StockDetailPage() {
   const router = useRouter();
-  const resolvedParams = use(params);
-  const ticker = resolvedParams.ticker.toUpperCase();
+  const params = useParams();
+  const tickerParam = params?.ticker || '';
+  const ticker = tickerParam.toUpperCase();
   const fullTicker = ticker.endsWith('.JK') ? ticker : `${ticker}.JK`;
   
   const { detail, ohlcv, ema20, ema50, bbUpper, bbMiddle, bbLower, isLoading, isError, error } =
