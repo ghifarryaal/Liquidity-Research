@@ -200,7 +200,12 @@ export default function StockDetailPage({ params }) {
            </h3>
            <div className="bg-background/40 rounded-xl border border-outline-variant/30 overflow-hidden">
              {stock.trade_plan ? (
-               <TradePlanTable plan={stock.trade_plan} ticker={stock.ticker} />
+               <TradePlanTable 
+                 plan={stock.trade_plan} 
+                 ticker={stock.ticker} 
+                 confidenceScore={stock.confidence_score}
+                 isHighConviction={stock.is_high_conviction}
+               />
              ) : (
                <div className="py-12 text-center text-on-surface-variant italic text-sm">
                  Trade plan sedang disiapkan...

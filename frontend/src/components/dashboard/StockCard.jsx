@@ -9,6 +9,7 @@ import { LabelWithTooltip } from '@/components/education/Tooltip';
 import { useStockDetail } from '@/hooks/useStockDetail';
 import { formatPrice, formatPct, formatIndicator, formatVolume, changeClass, rsiLabel } from '@/lib/formatters';
 import { CLUSTER_CONFIG } from '@/constants/clusterConfig';
+import TradePlanTable from './TradePlanTable';
 
 export default function StockCard({ stock, index }) {
   const [expanded, setExpanded] = useState(false);
@@ -248,6 +249,22 @@ export default function StockCard({ stock, index }) {
 
               {/* Reasoning */}
               <ReasoningBox stock={stock} />
+
+              {/* Trade Plan Table */}
+              {stock.trade_plan && (
+                <div className="mt-6 pt-6 border-t border-white/5">
+                  <h3 className="text-sm font-semibold text-slate-300 mb-4 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-primary text-[20px]">assignment</span>
+                    Dynamic Trade Plan
+                  </h3>
+                  <TradePlanTable 
+                    plan={stock.trade_plan} 
+                    ticker={stock.ticker} 
+                    confidenceScore={stock.confidence_score}
+                    isHighConviction={stock.is_high_conviction}
+                  />
+                </div>
+              )}
             </div>
           </motion.div>
         )}

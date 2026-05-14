@@ -277,4 +277,9 @@ class StockDetailResponse(BaseModel):
     # Trade Plan & Backtest
     trade_plan: Optional[TradePlan] = None
     backtest: Optional[BacktestResult] = None
+    
+    # Supervised ML Output
+    confidence_score: float = Field(0.5, ge=0.0, le=1.0)
+    is_high_conviction: bool = False
+    
     indicators: TechnicalIndicators
