@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 const INDEX_OPTIONS = [
   { value: 'lq45',      label: 'LQ45',       sublabel: '45 Saham' },
   { value: 'kompas100', label: 'KOMPAS 100',  sublabel: '100 Saham' },
+  { value: 'dbx',       label: 'DBX',        sublabel: '400+ Saham' },
 ];
 
 export default function TabToggle({ activeIndex, onIndexChange }) {
