@@ -29,5 +29,6 @@ export function useStockDetail(ticker, periodDays = 180) {
     indicators: data?.indicators ?? null,
     isLoading,
     isError: !!error,
+    error,
   };
 }

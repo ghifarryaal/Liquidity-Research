@@ -49,12 +49,13 @@ export default function StockDetailPage() {
 
   const stock = detail || {};
   const indicators = stock.indicators || {};
-  const rsi = rsiLabel(indicators.rsi);
-  const macdBull = indicators.macd != null &&
-    indicators.macd_signal != null &&
+  const rsi = rsiLabel(indicators?.rsi);
+  const macdBull = indicators?.macd != null &&
+    indicators?.macd_signal != null &&
     indicators.macd > indicators.macd_signal;
     
-  const volRatio = indicators.volume_ratio || 0;
+  const volRatio = indicators?.volume_ratio || 0;
+  const tickerDisplay = (stock.ticker || ticker || '').replace('.JK', '') || ticker;
 
   return (
     <div className="min-h-screen bg-background text-on-background p-4 md:p-8 pt-[104px]">
@@ -73,8 +74,8 @@ export default function StockDetailPage() {
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center bg-surface-container rounded-xl border border-outline-variant p-8 shadow-lg">
           <div className="flex flex-col gap-1">
             <div className="flex items-baseline gap-3">
-              <h1 className="font-ticker-lg text-5xl text-primary uppercase tracking-tight">{stock.ticker.replace('.JK', '')}</h1>
-              <span className="text-2xl text-on-surface-variant font-medium">{stock.name}</span>
+              <h1 className="font-ticker-lg text-5xl text-primary uppercase tracking-tight">{tickerDisplay}</h1>
+              <span className="text-2xl text-on-surface-variant font-medium">{stock.name || '—'}</span>
             </div>
             <div className="flex items-center gap-4 mt-3">
               <span className="text-xs uppercase font-bold px-3 py-1 bg-surface-variant text-on-surface-variant rounded-full border border-outline-variant">
@@ -88,10 +89,10 @@ export default function StockDetailPage() {
           </div>
           <div className="flex flex-col items-end gap-1 mt-6 md:mt-0">
             <div className="flex items-baseline gap-3">
-              <span className="font-display-sm text-5xl text-on-surface">{formatPrice(stock.current_price)}</span>
-              <span className={`font-data-mono text-2xl flex items-center ${stock.price_change_pct > 0 ? 'text-semantic-bullish' : stock.price_change_pct < 0 ? 'text-semantic-bearish' : 'text-on-surface-variant'}`}>
-                {stock.price_change_pct > 0 ? '▲' : stock.price_change_pct < 0 ? '▼' : ''}
-                {formatPct(stock.price_change_pct)}
+              <span className="font-display-sm text-5xl text-on-surface">{formatPrice(stock.current_price ?? 0)}</span>
+              <span className={`font-data-mono text-2xl flex items-center ${(stock.price_change_pct ?? 0) > 0 ? 'text-semantic-bullish' : (stock.price_change_pct ?? 0) < 0 ? 'text-semantic-bearish' : 'text-on-surface-variant'}`}>
+                {(stock.price_change_pct ?? 0) > 0 ? '▲' : (stock.price_change_pct ?? 0) < 0 ? '▼' : ''}
+                {formatPct(stock.price_change_pct ?? 0)}
               </span>
             </div>
             <span className="text-xs text-on-surface-variant uppercase font-data-mono tracking-[0.2em]">Live Price Update (1D)</span>
@@ -158,11 +159,11 @@ export default function StockDetailPage() {
             </div>
             <div className="flex flex-col items-end gap-2">
               <div className="px-6 py-2 bg-primary/10 border border-primary text-primary font-bold rounded-lg text-sm uppercase tracking-widest">
-                {stock.cluster_label}
+                {stock.cluster_label || '—'}
               </div>
               <div className="flex items-center gap-3">
                 <span className="text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">Confidence</span>
-                <span className="font-data-mono text-sm text-primary font-bold">{Math.round(stock.confidence * 100)}%</span>
+                <span className="font-data-mono text-sm text-primary font-bold">{Math.round((stock.confidence ?? 0) * 100)}%</span>
               </div>
             </div>
           </div>
