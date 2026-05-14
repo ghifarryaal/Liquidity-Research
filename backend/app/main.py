@@ -2,7 +2,10 @@
 LiquidityResearch — FastAPI Backend Entry Point
 """
 
-from fastapi import FastAPI
+import os
+import traceback
+
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
@@ -31,10 +34,16 @@ app = FastAPI(
 # CORS — allow Next.js dev & prod origins
 # ---------------------------------------------------------------------------
 
+ALLOWED_ORIGINS_RAW = os.getenv("ALLOWED_ORIGINS", "*")
+ALLOWED_ORIGINS = [o.strip() for o in ALLOWED_ORIGINS_RAW.split(",")]
+
+# If wildcard is used, credentials must be False (browser restriction)
+_use_wildcard = ALLOWED_ORIGINS == ["*"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=ALLOWED_ORIGINS,
+    allow_credentials=not _use_wildcard,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -44,16 +53,12 @@ app.add_middleware(
 # ---------------------------------------------------------------------------
 
 app.include_router(cluster.router, prefix="/api", tags=["Clustering"])
-app.include_router(cluster.router, tags=["Clustering Alias"]) # Alias without /api prefix
 app.include_router(chat.router, prefix="/api", tags=["AI Mentor"])
 
 # ---------------------------------------------------------------------------
 # Health check
 # ---------------------------------------------------------------------------
 
-
-import traceback
-from fastapi import Request
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):

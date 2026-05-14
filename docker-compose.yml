@@ -6,10 +6,10 @@ services:
       - "8001:8000"
     environment:
       - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - ALLOWED_ORIGINS=https://quant.indonesiastockanalyst.my.id,https://www.indonesiastockanalyst.my.id
     networks:
       - liquidity_net
 
 networks:
   liquidity_net:
     driver: bridge
-
