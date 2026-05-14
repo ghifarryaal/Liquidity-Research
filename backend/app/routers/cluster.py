@@ -349,7 +349,17 @@ async def get_stock_detail(
     all_meta = {**LQ45_TICKER_META, **KOMPAS100_TICKER_META, **DBX_TICKER_META}
     meta = all_meta.get(ticker, {"name": ticker, "sector": "Unknown"})
 
+    current_price = price_info.get("current_price") or 0.0
+    price_change = price_info.get("price_change_pct") or 0.0
+    week_change = price_info.get("week_change_pct") or 0.0
+    month_change = price_info.get("month_change_pct") or 0.0
+    vol = price_info.get("volume") or 0
+    
     try:
+        # Construct indicators safely (only non-null values)
+        ind_data = {k: v for k, v in ind.items() if v is not None}
+        indicators_obj = TechnicalIndicators(**ind_data)
+
         return StockDetailResponse(
             ticker=ticker,
             name=meta.get("name", ticker),
@@ -360,24 +370,24 @@ async def get_stock_detail(
             bb_upper_series=series.get("bb_upper", []),
             bb_middle_series=series.get("bb_middle", []),
             bb_lower_series=series.get("bb_lower", []),
-            current_price=price_info["current_price"],
-            price_change_pct=price_info["price_change_pct"],
-            week_change_pct=price_info["week_change_pct"],
-            month_change_pct=price_info["month_change_pct"],
-            volume=price_info["volume"],
+            current_price=current_price,
+            price_change_pct=price_change,
+            week_change_pct=week_change,
+            month_change_pct=month_change,
+            volume=vol,
             cluster_label=label,
-            cluster_color=CLUSTER_CONFIG[label]["color"],
+            cluster_color=CLUSTER_CONFIG.get(label, {}).get("color", "#FFFFFF"),
             strategy=strategy,
             reasoning=reasoning,
-            confidence=0.85, # Constant for single view
-            take_profit=risk["take_profit"],
-            stop_loss=risk["stop_loss"],
-            trading_style=risk["trading_style"],
+            confidence=0.85,
+            take_profit=risk.get("take_profit"),
+            stop_loss=risk.get("stop_loss"),
+            trading_style=risk.get("trading_style", "Swing Trade"),
             trade_plan=TradePlan(**plan_raw) if plan_raw else None,
             backtest=BacktestResult(**bt_raw) if bt_raw else None,
-            confidence_score=0.78,  # Mocked for single view, usually > 0.75 for these setups
+            confidence_score=0.78,
             is_high_conviction=True,
-            indicators=TechnicalIndicators(**{k: v for k, v in ind.items() if v is not None})
+            indicators=indicators_obj
         )
     except Exception as e:
         logger.error(f"Error constructing StockDetailResponse for {ticker}: {str(e)}")

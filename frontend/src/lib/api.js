@@ -4,11 +4,13 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
 
 
 async function fetchJSON(url) {
+  console.log(`[API] Fetching URL: ${url}`);
   const res = await fetch(url, {
     headers: { 'Content-Type': 'application/json' },
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: res.statusText }));
+    console.error(`[API] Error on ${url}:`, err);
     throw new Error(err.detail || `HTTP ${res.status}`);
   }
   return res.json();
