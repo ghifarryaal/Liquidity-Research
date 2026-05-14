@@ -1,8 +1,13 @@
+import { setupDevPlatform } from '@cloudflare/next-on-pages/next-dev';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // NOTE: rewrites() only work in server-rendered Next.js, NOT in Cloudflare Pages static export.
-  // The frontend calls the backend directly via NEXT_PUBLIC_API_URL from the browser.
 };
+
+// Enable Cloudflare bindings in local dev (no-op in production build)
+if (process.env.NODE_ENV === 'development') {
+  await setupDevPlatform();
+}
 
 export default nextConfig;

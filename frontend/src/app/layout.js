@@ -2,6 +2,9 @@ import './globals.css';
 import { MentorProvider } from '@/lib/mentorContext';
 import ChatWidget from '@/components/ui/ChatWidget';
 
+// Required for Cloudflare Pages (next-on-pages)
+export const runtime = 'edge';
+
 export const metadata = {
   title: 'LiquidityResearch — Analisis Saham LQ45 & KOMPAS100',
   description:
