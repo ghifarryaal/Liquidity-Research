@@ -46,6 +46,7 @@ class GlobalMarketItem(BaseModel):
 
 
 class MacroScore(BaseModel):
+    model_config = ConfigDict(extra='ignore')
     volatility_penalty: float = Field(
         ...,
         description=(
@@ -76,6 +77,7 @@ class MacroScore(BaseModel):
 
 
 class MacroSentimentDetail(BaseModel):
+    model_config = ConfigDict(extra='ignore')
     dxy_zscore: float = Field(0.0, description="DXY z-score: positive = strong USD")
     us10y_zscore: float = Field(0.0, description="US10Y z-score: positive = rising yields")
     dxy_level: float = Field(0.0, description="DXY normalized level")
@@ -104,6 +106,7 @@ class SupervisedValidation(BaseModel):
 
 
 class TradePlan(BaseModel):
+    model_config = ConfigDict(extra='ignore')
     entry_range: str
     stop_loss: float
     take_profit_1: float
@@ -122,6 +125,7 @@ class TradePlan(BaseModel):
 
 
 class BacktestResult(BaseModel):
+    model_config = ConfigDict(extra='ignore')
     total_trades: int = Field(0, description="Number of signals simulated")
     winning_trades: int = Field(0, description="Number of winning trades")
     win_rate: float = Field(0.0, description="Win rate 0-1")
@@ -151,6 +155,7 @@ class PanicMeter(BaseModel):
 
 
 class StockClusterResult(BaseModel):
+    model_config = ConfigDict(extra='ignore')
     ticker: str
     name: str = Field("", description="Company name")
     sector: str = Field("", description="GICS sector")
@@ -248,6 +253,7 @@ class OHLCVBar(BaseModel):
 
 
 class StockDetailResponse(BaseModel):
+    model_config = ConfigDict(extra='ignore')
     ticker: str
     name: str
     sector: str = ""
