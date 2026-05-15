@@ -19,30 +19,30 @@ export default function BacktestScorecard({ backtest }) {
   const winPct = Math.round(win_rate * 100);
 
   return (
-    <div className="mt-4 border border-outline-variant rounded-xl overflow-hidden">
+    <div className="mt-3 md:mt-4 border border-outline-variant rounded-xl overflow-hidden">
       {/* Header toggle */}
       <button
         onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center justify-between px-4 py-3 bg-surface-container hover:bg-surface-container-high transition-colors"
+        className="w-full flex items-center justify-between px-3 md:px-4 py-2.5 md:py-3 bg-surface-container hover:bg-surface-container-high transition-colors"
       >
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 md:gap-3">
           <span
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-black"
+            className="w-7 h-7 md:w-8 md:h-8 rounded-lg flex items-center justify-center text-xs md:text-sm font-black"
             style={{ background: grade.bg, color: grade.color }}
           >
             {grade.label}
           </span>
           <div className="text-left">
-            <p className="text-xs font-bold text-on-surface">Backtest Scorecard</p>
-            <p className="text-[10px] text-on-surface-variant">Simulasi strategi 6 bulan historis</p>
+            <p className="text-[11px] md:text-xs font-bold text-on-surface">Backtest Scorecard</p>
+            <p className="text-[9px] md:text-[10px] text-on-surface-variant hidden sm:block">Simulasi strategi 6 bulan historis</p>
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 md:gap-3">
           <div className="text-right">
-            <span className="text-lg font-mono font-bold" style={{ color: grade.color }}>{winPct}%</span>
-            <span className="text-[10px] text-on-surface-variant ml-1">win rate</span>
+            <span className="text-base md:text-lg font-mono font-bold" style={{ color: grade.color }}>{winPct}%</span>
+            <span className="text-[9px] md:text-[10px] text-on-surface-variant ml-1">win rate</span>
           </div>
-          <span className="material-symbols-outlined text-on-surface-variant text-[18px]">
+          <span className="material-symbols-outlined text-on-surface-variant text-[16px] md:text-[18px]">
             {open ? 'expand_less' : 'expand_more'}
           </span>
         </div>
@@ -50,17 +50,17 @@ export default function BacktestScorecard({ backtest }) {
 
       {/* Expanded detail */}
       {open && (
-        <div className="px-4 pb-4 pt-2 bg-surface flex flex-col gap-4 border-t border-outline-variant">
+        <div className="px-3 md:px-4 pb-3 md:pb-4 pt-2 bg-surface flex flex-col gap-3 md:gap-4 border-t border-outline-variant">
 
           {/* Win-rate bar */}
           <div>
-            <div className="flex justify-between text-[11px] text-on-surface-variant mb-1">
+            <div className="flex justify-between text-[10px] md:text-[11px] text-on-surface-variant mb-1">
               <span>Win Rate</span>
               <span className="font-mono font-bold" style={{ color: grade.color }}>
                 {winning_trades}/{total_trades} trades
               </span>
             </div>
-            <div className="h-2 bg-surface-container-highest rounded-full overflow-hidden">
+            <div className="h-1.5 md:h-2 bg-surface-container-highest rounded-full overflow-hidden">
               <div
                 className="h-full rounded-full transition-all duration-700"
                 style={{ width: `${winPct}%`, background: grade.color }}
@@ -69,7 +69,7 @@ export default function BacktestScorecard({ backtest }) {
           </div>
 
           {/* Stats grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 md:gap-3">
             <StatBox label="Avg R:R Dicapai" value={`1:${avg_rr_achieved.toFixed(1)}`} />
             <StatBox
               label="Trade Terbaik"
@@ -84,7 +84,7 @@ export default function BacktestScorecard({ backtest }) {
           </div>
 
           {/* Learning note */}
-          <div className="p-3 rounded-lg bg-surface-container text-[11px] text-on-surface-variant leading-relaxed">
+          <div className="p-2 md:p-3 rounded-lg bg-surface-container text-[10px] md:text-[11px] text-on-surface-variant leading-relaxed">
             <span className="font-bold text-on-surface">💡 Apa artinya?</span>
             {' '}Win rate {winPct}% berarti dari setiap 10 sinyal yang dihasilkan AI di masa lalu,
             sekitar {Math.round(win_rate * 10)} sinyal berhasil mencapai target. Ini adalah simulasi
@@ -98,9 +98,9 @@ export default function BacktestScorecard({ backtest }) {
 
 function StatBox({ label, value, color }) {
   return (
-    <div className="flex flex-col gap-0.5 p-2 rounded-lg bg-surface-container-highest">
-      <span className="text-[9px] text-on-surface-variant uppercase tracking-wider">{label}</span>
-      <span className="text-sm font-bold font-mono" style={{ color: color ?? '#94a3b8' }}>{value}</span>
+    <div className="flex flex-col gap-0.5 p-1.5 md:p-2 rounded-lg bg-surface-container-highest">
+      <span className="text-[8px] md:text-[9px] text-on-surface-variant uppercase tracking-wider">{label}</span>
+      <span className="text-xs md:text-sm font-bold font-mono" style={{ color: color ?? '#94a3b8' }}>{value}</span>
     </div>
   );
 }

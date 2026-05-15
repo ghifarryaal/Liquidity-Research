@@ -33,9 +33,9 @@ export default function DashboardPage() {
         onRefresh={refresh}
       />
 
-      <main className="pt-[88px] pb-section-margin">
+      <main className="pt-[72px] md:pt-[88px] pb-8 md:pb-12 lg:pb-16">
         <Disclaimer />
-        <div className="px-container-padding max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+        <div className="px-4 md:px-6 lg:px-8 max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6">
         <MarketOverview
           stocks={stocks}
           clusterSummary={clusterSummary}

@@ -139,8 +139,8 @@ body {
 /* Floating trigger button */
 .mentor-trigger {
   position: fixed;
-  bottom: 28px;
-  right: 28px;
+  bottom: 20px;
+  right: 20px;
   z-index: 200;
   display: flex;
   align-items: center;
@@ -156,6 +156,16 @@ body {
   cursor: pointer;
   box-shadow: 0 8px 32px rgba(0, 102, 138, 0.45), 0 2px 8px rgba(0, 0, 0, 0.3);
   transition: box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+@media (max-width: 640px) {
+  .mentor-trigger {
+    bottom: 16px;
+    right: 16px;
+    padding: 10px 16px 10px 12px;
+    font-size: 13px;
+    gap: 6px;
+  }
 }
 .mentor-trigger:hover {
   box-shadow: 0 12px 40px rgba(0, 102, 138, 0.6), 0 4px 12px rgba(0, 0, 0, 0.4);
@@ -181,8 +191,8 @@ body {
 /* Chat window glass card */
 .mentor-window {
   position: fixed;
-  bottom: 28px;
-  right: 28px;
+  bottom: 20px;
+  right: 20px;
   z-index: 201;
   width: 400px;
   max-width: calc(100vw - 32px);
@@ -198,6 +208,15 @@ body {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+}
+
+@media (max-width: 640px) {
+  .mentor-window {
+    bottom: 16px;
+    right: 16px;
+    width: calc(100vw - 32px);
+    max-height: calc(100vh - 100px);
+  }
 }
 
 /* Header */
@@ -272,6 +291,14 @@ body {
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--color-surface-variant) transparent;
+}
+
+@media (max-width: 640px) {
+  .mentor-messages {
+    padding: 12px;
+    gap: 10px;
+    max-height: 280px;
+  }
 }
 .mentor-avatar {
   display: flex;
