@@ -369,14 +369,18 @@ async def get_stock_detail(
         if momentum > 1.0:
             label = "Trending / Momentum"
         elif momentum < -1.0:
-            if is_dip or rsi < 40:
-                label = "Buy the Dip"
-            elif is_high_risk:
+            # Low momentum: check if it's a safe dip or risky
+            if is_high_risk:
+                # High risk takes priority over dip signal
                 label = "High Risk / Avoid"
+            elif is_dip or rsi < 42:
+                # Safe dip: low RSI + near lower BB + below EMA
+                label = "Buy the Dip"
             else:
+                # Low momentum but no clear dip signal
                 label = "Buy the Dip"
         else:
-            # Middle range
+            # Middle range momentum
             if is_high_risk:
                 label = "High Risk / Avoid"
             else:
