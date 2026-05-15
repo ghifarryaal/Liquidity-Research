@@ -424,7 +424,18 @@ async def get_stock_detail(
         bt_raw = run_backtest(df)
         
         # Get Buy/Hold/Sell signal
-        signal_data = get_buy_hold_sell_signal(label, raw_conf_score)
+        try:
+            signal_data = get_buy_hold_sell_signal(label, raw_conf_score)
+            logger.info(f"[{ticker}] Signal generated: {signal_data}")
+        except Exception as e:
+            logger.error(f"[{ticker}] Error generating signal: {e}", exc_info=True)
+            signal_data = {
+                "signal": "HOLD",
+                "base_signal": "HOLD",
+                "strength": "MODERATE",
+                "confidence": raw_conf_score,
+                "recommendation": f"🟡 HOLD - Confidence {round(raw_conf_score * 100)}% | Sinyal sedang disiapkan"
+            }
 
         all_meta = {**LQ45_TICKER_META, **KOMPAS100_TICKER_META, **DBX_TICKER_META}
         meta = all_meta.get(ticker, {"name": ticker, "sector": "Unknown"})
