@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { CLUSTER_CONFIG } from '@/constants/clusterConfig';
 import { changeClass } from '@/lib/formatters';
+import SignalDistribution from './SignalDistribution';
 
 const FILTER_OPTIONS = [
   { value: 'all', label: 'Semua', icon: 'grid_view' },
@@ -128,6 +129,9 @@ export default function InsightFeed({ stocks, isLoading, isError }) {
 
   return (
     <div className="lg:col-span-12 bg-surface-container-lowest flex flex-col pt-2">
+
+      {/* Signal Distribution Bar */}
+      <SignalDistribution stocks={stocks} isLoading={isLoading} />
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-4 md:mb-6 gap-3">
