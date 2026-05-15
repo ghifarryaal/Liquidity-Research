@@ -12,6 +12,7 @@ from __future__ import annotations
 import logging
 from datetime import datetime, timezone
 
+import numpy as np
 from fastapi import APIRouter, HTTPException, Path, Query
 
 from app.constants.lq45_tickers import LQ45_TICKER_SYMBOLS, LQ45_TICKER_META
@@ -326,17 +327,60 @@ async def get_stock_detail(
         price_info = get_latest_price_info(df)
 
         # 4. Simplified Cluster Label for single stock (rule-based)
+        # Aligned with clustering_engine.py logic for consistency
         rsi = ind.get("rsi", 50)
+        macd = ind.get("macd")
+        macd_sig = ind.get("macd_signal")
+        ema20_gap = ind.get("ema_20_gap_pct", 0)
         bb_pos = ind.get("bb_position", 0.5)
+        bb_width = ind.get("bb_width", 0)
+        atr_pct = ind.get("atr_pct", 0)
+        vol_ratio = ind.get("volume_ratio", 1.0)
         
-        if rsi > 60 and bb_pos > 0.6:
-            label = "Trending / Momentum"
-        elif rsi < 40 and bb_pos < 0.4:
-            label = "Buy the Dip"
-        elif rsi > 75 or ind.get("bb_width", 0) > 15:
-            label = "High Risk / Avoid"
+        # Calculate momentum score (same as clustering_engine._map_centroids_to_labels)
+        momentum = 0.0
+        
+        # RSI scoring
+        if rsi > 60:
+            momentum += 1.5
+        elif rsi > 50:
+            momentum += 0.5
+        elif rsi < 35:
+            momentum -= 1.5
         else:
-            label = "Hold / Sideways"
+            momentum -= 0.3
+        
+        # MACD scoring
+        if macd is not None and macd_sig is not None:
+            macd_str = macd - macd_sig
+            momentum += float(np.clip(macd_str * 3, -1.5, 1.5))
+        
+        # EMA gap scoring
+        momentum += float(np.clip(ema20_gap / 5.0, -1.0, 1.0))
+        
+        # Bollinger Band position scoring
+        momentum += (bb_pos - 0.5) * 1.5
+        
+        # Risk flags
+        is_high_risk = (bb_width > 10.0) or (atr_pct > 4.0) or (vol_ratio > 3.0)
+        is_dip = (rsi < 42) and (bb_pos < 0.35) and (ema20_gap < -1.0)
+        
+        # Determine label based on momentum and risk flags
+        if momentum > 1.0:
+            label = "Trending / Momentum"
+        elif momentum < -1.0:
+            if is_dip or rsi < 40:
+                label = "Buy the Dip"
+            elif is_high_risk:
+                label = "High Risk / Avoid"
+            else:
+                label = "Buy the Dip"
+        else:
+            # Middle range
+            if is_high_risk:
+                label = "High Risk / Avoid"
+            else:
+                label = "Hold / Sideways"
 
         from app.services.clustering_engine import CLUSTER_CONFIG, generate_reasoning, calculate_risk_management
         from app.services.trade_plan_engine import calculate_trade_plan
