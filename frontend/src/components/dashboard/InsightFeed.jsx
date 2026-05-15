@@ -233,16 +233,16 @@ export default function InsightFeed({ stocks, isLoading, isError }) {
               {isLoading ? (
                 Array.from({ length: 8 }).map((_, i) => (
                   <tr key={i}>
-                    {Array.from({ length: 8 }).map((_, j) => (
+                    {Array.from({ length: 9 }).map((_, j) => (
                       <td key={j} className="py-3 px-4">
-                        <div className="h-3.5 bg-surface-container-high rounded animate-pulse" style={{ width: j === 0 ? '80px' : j === 6 ? '100px' : '56px' }} />
+                        <div className="h-3.5 bg-surface-container-high rounded animate-pulse" style={{ width: j === 0 ? '80px' : j === 6 ? '100px' : j === 8 ? '150px' : '56px' }} />
                       </td>
                     ))}
                   </tr>
                 ))
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-16 text-center">
+                  <td colSpan={9} className="py-16 text-center">
                     <div className="flex flex-col items-center gap-3">
                       <span className="material-symbols-outlined text-4xl text-on-surface-variant/40">search_off</span>
                       <p className="text-on-surface-variant text-sm">Tidak ada emiten yang sesuai filter</p>
@@ -281,6 +281,11 @@ export default function InsightFeed({ stocks, isLoading, isError }) {
                     <td className="py-2.5 px-4"><SignalBadge signal={stock.signal} /></td>
                     <td className="py-2.5 px-4"><ClusterChip label={stock.cluster_label} /></td>
                     <td className="py-2.5 px-4"><ConfidenceMini score={stock.confidence} /></td>
+                    <td className="py-2.5 px-4">
+                      <span className="text-[10px] text-on-surface-variant max-w-[200px] line-clamp-2">
+                        {stock.signal_recommendation || stock.strategy || '—'}
+                      </span>
+                    </td>
                   </motion.tr>
                 ))
               )}
