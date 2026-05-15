@@ -253,7 +253,6 @@ class OHLCVBar(BaseModel):
 
 
 class StockDetailResponse(BaseModel):
-    model_config = ConfigDict(extra='ignore')
     ticker: str
     name: str
     sector: str = ""
