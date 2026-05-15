@@ -450,6 +450,8 @@ async def get_stock_detail(
         ind_data = {k: v for k, v in ind.items() if v is not None}
         indicators_obj = TechnicalIndicators(**ind_data)
 
+        logger.info(f"[{ticker}] About to return StockDetailResponse with signal={signal_data.get('signal')}")
+
         return StockDetailResponse(
             ticker=ticker,
             name=meta.get("name", ticker),
