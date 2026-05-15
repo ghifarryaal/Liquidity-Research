@@ -1,11 +1,14 @@
-# 📈 LiquidityResearch - AI-Powered Indonesian Stock Analysis Platform
+# 📈 LiquidityResearch — AI-Powered Indonesian Stock Analysis
 
-> Intelligent stock analysis platform for Indonesian market (LQ45 & KOMPAS100) powered by Machine Learning clustering, technical indicators, and automated backtesting.
+> Platform analisis saham Indonesia (LQ45, KOMPAS100, DBX) berbasis Machine Learning — clustering otomatis, trade plan AI, dan backtesting real-time. **Tanpa login. Gratis. Open source.**
 
-[![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-15.5-black)](https://nextjs.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688)](https://fastapi.tiangolo.com/)
 [![Python](https://img.shields.io/badge/Python-3.11-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Visit%20Now-brightgreen)](https://quant.indonesiastockanalyst.my.id)
+
+**🔗 [Live Demo](https://quant.indonesiastockanalyst.my.id) · [API Docs](https://api-quant.indonesiastockanalyst.my.id/docs) · [Architecture](docs/ARCHITECTURE.md) · [Innovation](docs/INNOVATION.md)**
 
 ## 🌟 Features
 
@@ -210,21 +213,22 @@ GET /api/clusters?index=lq45
 ## 🌐 Live Demo
 
 - **Frontend**: https://quant.indonesiastockanalyst.my.id
-- **API**: https://api-quant.indonesiastockanalyst.my.id/docs
+- **API Docs**: https://api-quant.indonesiastockanalyst.my.id/docs
+
+> Coba langsung: buka dashboard → pilih saham LQ45 → lihat analisis AI + trade plan otomatis
 
 ## 📸 Screenshots
 
-### Dashboard
-![Dashboard](docs/screenshots/dashboard.png)
-*Market overview with AI-powered stock clustering*
+### Dashboard — Market Overview
+Tampilan utama dengan 9 widget: Macro Sentiment, Market Momentum, Market Breadth, Sector Leadership, World Indices, Commodities, XGBoost Validation, Panic Meter, dan AI Clustering.
 
-### Stock Detail
-![Stock Detail](docs/screenshots/stock-detail.png)
-*Comprehensive analysis with charts and trade plans*
-
-### Technical Analysis
-![Technical Analysis](docs/screenshots/technical.png)
-*Interactive candlestick charts with indicators*
+### Stock Detail — Analisis Lengkap
+Setiap saham memiliki halaman detail dengan:
+- Candlestick chart interaktif + EMA 20/50 + Bollinger Bands
+- Technical Snapshot (RSI, MACD, Volume Ratio, ATR)
+- AI Analyst Desk Briefing dengan reasoning transparan
+- Trade Plan otomatis (Entry, Stop Loss, TP1, TP2, R:R)
+- Backtest Scorecard historis 6 bulan
 
 ## 🧪 Testing
 
