@@ -9,8 +9,6 @@ import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Disclaimer from '@/components/layout/Disclaimer';
 
-export const runtime = 'edge';
-
 export default function StockDetailPage() {
   const router = useRouter();
   const params = useParams();

@@ -6,8 +6,6 @@ import Navbar from '@/components/layout/Navbar';
 import { useClusterData } from '@/hooks/useClusterData';
 import Disclaimer from '@/components/layout/Disclaimer';
 
-export const runtime = 'edge';
-
 const MarketOverview = dynamic(() => import('@/components/dashboard/MarketOverview'), { ssr: false });
 const InsightFeed = dynamic(() => import('@/components/dashboard/InsightFeed'), { ssr: false });
 
