@@ -126,7 +126,7 @@ export default function MarketOverview({ stocks, clusterSummary, macro, macroSen
       </div>
 
       {/* 2. Index Performance */}
-      <div className="col-span-1 md:col-span-4 bg-surface-container border border-outline-variant rounded-xl p-3 md:p-4 flex flex-col justify-between h-[240px] sm:h-[260px] hover:bg-surface-variant/50 transition-colors">
+      <div className="col-span-1 md:col-span-4 bg-surface-container border border-outline-variant rounded-xl p-3 md:p-4 flex flex-col justify-between h-[240px] sm:h-[260px] hover:bg-surface-variant/50 hover:-translate-y-0.5 transition-all duration-200 card-hover">
         <div className="flex justify-between items-center mb-1">
           <h3 className="font-ticker-lg text-sm md:text-lg text-primary">{indexName.toUpperCase()}</h3>
           <span className="bg-surface-variant text-on-surface-variant px-1.5 py-0.5 rounded text-[8px] md:text-[9px] font-data-mono uppercase tracking-wider">Active</span>
@@ -145,7 +145,7 @@ export default function MarketOverview({ stocks, clusterSummary, macro, macroSen
       </div>
 
       {/* 3. Market Momentum */}
-      <div className="col-span-1 md:col-span-4 bg-surface-container border border-outline-variant rounded-xl p-3 md:p-4 flex flex-col justify-between h-[240px] sm:h-[260px] hover:bg-surface-variant/50 transition-colors">
+      <div className="col-span-1 md:col-span-4 bg-surface-container border border-outline-variant rounded-xl p-3 md:p-4 flex flex-col justify-between h-[240px] sm:h-[260px] hover:bg-surface-variant/50 hover:-translate-y-0.5 transition-all duration-200 card-hover">
         <div className="flex justify-between items-center mb-1">
           <h3 className="font-ticker-lg text-sm md:text-[15px] font-semibold text-primary">Market Momentum</h3>
           <span className="material-symbols-outlined text-[18px] md:text-[20px] text-on-surface-variant">rocket_launch</span>

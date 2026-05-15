@@ -269,9 +269,11 @@ export default function InsightFeed({ stocks, isLoading, isError }) {
               key={stock.ticker}
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
+              whileHover={{ y: -2 }}
+              whileTap={{ scale: 0.98 }}
               transition={{ delay: Math.min(idx * 0.03, 0.5) }}
               onClick={() => router.push(`/stock/${stock.ticker.replace('.JK', '')}`)}
-              className="bg-surface-container border border-outline-variant rounded-xl p-3 cursor-pointer hover:border-primary/40 hover:bg-surface-container-high transition-all active:scale-[0.99]"
+              className="bg-surface-container border border-outline-variant rounded-xl p-3 cursor-pointer hover:border-primary/40 hover:bg-surface-container-high transition-all ripple"
             >
               <div className="flex items-start justify-between gap-2 mb-2">
                 <div className="min-w-0">

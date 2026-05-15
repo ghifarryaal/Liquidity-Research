@@ -29,8 +29,9 @@ export default function StockCard({ stock, index }) {
       layout
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
+      whileHover={!expanded ? { y: -3, transition: { duration: 0.2 } } : {}}
       transition={{ delay: index * 0.04, duration: 0.4, ease: 'easeOut' }}
-      className={`glass-card group cursor-pointer overflow-hidden ${expanded ? 'col-span-1 sm:col-span-2 xl:col-span-3' : ''}`}
+      className={`glass-card group cursor-pointer overflow-hidden ripple focus-ring ${expanded ? 'col-span-1 sm:col-span-2 xl:col-span-3' : ''}`}
       style={{
         borderColor: expanded ? cfg.borderColor : 'rgba(255,255,255,0.07)',
         boxShadow: expanded
@@ -146,17 +147,19 @@ export default function StockCard({ stock, index }) {
             {stock.strategy}
           </p>
           <button
-            className="flex items-center gap-1 text-xs font-semibold transition-colors duration-200"
+            className="flex items-center gap-1 text-xs font-semibold transition-all duration-200 btn-press"
             style={{ color: expanded ? cfg.color : '#64748b' }}
             onClick={(e) => { e.stopPropagation(); setExpanded(v => !v); }}
           >
             {expanded ? 'Tutup' : 'Analisis'}
-            <svg
-              className={`w-3.5 h-3.5 transition-transform duration-300 ${expanded ? 'rotate-180' : ''}`}
+            <motion.svg
+              className="w-3.5 h-3.5"
+              animate={{ rotate: expanded ? 180 : 0 }}
+              transition={{ duration: 0.3 }}
               fill="none" stroke="currentColor" viewBox="0 0 24 24"
             >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
+            </motion.svg>
           </button>
         </div>
       </div>

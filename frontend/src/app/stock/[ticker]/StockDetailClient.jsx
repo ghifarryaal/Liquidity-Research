@@ -7,6 +7,7 @@ import TradePlanTable from '@/components/dashboard/TradePlanTable';
 import BacktestScorecard from '@/components/dashboard/BacktestScorecard';
 import { useParams, useRouter } from 'next/navigation';
 import Disclaimer from '@/components/layout/Disclaimer';
+import { motion } from 'framer-motion';
 
 export default function StockDetailClient() {
   const router = useRouter();
@@ -59,15 +60,17 @@ export default function StockDetailClient() {
   return (
     <div className="min-h-screen bg-background text-on-background p-4 md:p-6 lg:p-8 pt-[88px] md:pt-[104px]">
       <Disclaimer />
-      <div className="max-w-7xl mx-auto flex flex-col gap-6 md:gap-8">
+      <div className="max-w-7xl mx-auto flex flex-col gap-6 md:gap-8 stagger-children">
         {/* 0. Back Navigation */}
-        <button 
+        <motion.button 
           onClick={() => router.push('/')}
-          className="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors group w-fit"
+          whileHover={{ x: -4 }}
+          whileTap={{ scale: 0.97 }}
+          className="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors group w-fit focus-ring"
         >
-          <span className="material-symbols-outlined group-hover:-translate-x-1 transition-transform text-lg md:text-xl">arrow_back</span>
+          <span className="material-symbols-outlined text-lg md:text-xl">arrow_back</span>
           <span className="text-xs md:text-sm font-bold uppercase tracking-widest">Kembali ke Dashboard</span>
-        </button>
+        </motion.button>
 
         {/* 1. Header Section (Full Width) */}
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center bg-surface-container rounded-xl border border-outline-variant p-4 md:p-6 lg:p-8 shadow-lg gap-4 md:gap-0">
@@ -137,11 +140,16 @@ export default function StockDetailClient() {
               { label: 'Vol Ratio', value: `${volRatio.toFixed(1)}x`, meta: volRatio > 1.5 ? 'ELEVATED' : 'NORMAL', color: volRatio > 1.5 ? 'text-tertiary' : 'text-on-surface-variant' },
               { label: 'ATR (14)', value: stock.indicators?.atr ? Math.round(stock.indicators.atr) : '—', meta: 'VOLATILITY', color: 'text-on-surface-variant' }
             ].map((item, idx) => (
-              <div key={idx} className="flex flex-col gap-1 p-3 sm:p-4 lg:p-5 bg-background/40 rounded-xl border border-outline-variant/50">
+              <motion.div
+                key={idx}
+                whileHover={{ y: -2, scale: 1.02 }}
+                transition={{ duration: 0.15 }}
+                className="flex flex-col gap-1 p-3 sm:p-4 lg:p-5 bg-background/40 rounded-xl border border-outline-variant/50 cursor-default"
+              >
                 <span className="text-[9px] sm:text-[10px] text-on-surface-variant font-bold uppercase tracking-wider">{item.label}</span>
                 <span className="font-data-mono text-xl sm:text-2xl font-bold text-on-surface">{item.value}</span>
                 <span className={`text-[9px] sm:text-[10px] font-bold ${item.color}`}>{item.meta}</span>
-              </div>
+              </motion.div>
             ))}
           </div>
         </section>

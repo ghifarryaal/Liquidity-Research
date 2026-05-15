@@ -48,13 +48,14 @@ export default function Navbar({ activeIndex, onIndexChange, generatedAt, onRefr
               <button 
                 key={id}
                 onClick={() => onIndexChange(id)}
-                className={`font-body-standard text-[11px] lg:text-[13px] font-bold uppercase tracking-[0.1em] transition-all relative py-2 ${activeIndex === id ? 'text-primary' : 'text-on-surface-variant hover:text-on-surface'}`}
+                className={`font-body-standard text-[11px] lg:text-[13px] font-bold uppercase tracking-[0.1em] transition-all relative py-2 btn-press focus-ring ${activeIndex === id ? 'text-primary' : 'text-on-surface-variant hover:text-on-surface'}`}
               >
                 {id === 'dbx' ? 'DBX' : id.toUpperCase()}
                 {activeIndex === id && (
                   <motion.div 
                     layoutId="nav-underline"
                     className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
+                    style={{ boxShadow: '0 0 8px rgba(0,255,178,0.8)' }}
                   />
                 )}
               </button>
