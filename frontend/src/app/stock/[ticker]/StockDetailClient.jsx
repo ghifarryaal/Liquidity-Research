@@ -168,9 +168,12 @@ export default function StockDetailClient() {
               <div className="px-4 md:px-6 py-2 bg-primary/10 border border-primary text-primary font-bold rounded-lg text-xs sm:text-sm uppercase tracking-widest">
                 {stock.cluster_label || '—'}
               </div>
-              <div className="flex items-center gap-2 md:gap-3">
-                <span className="text-[9px] sm:text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">Confidence</span>
-                <span className="font-data-mono text-xs sm:text-sm text-primary font-bold">{Math.round((stock.confidence ?? 0) * 100)}%</span>
+              <div className="flex flex-col items-start lg:items-end gap-1">
+                <div className="flex items-center gap-2 md:gap-3">
+                  <span className="text-[9px] sm:text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">Clustering Confidence</span>
+                  <span className="font-data-mono text-xs sm:text-sm text-primary font-bold">{Math.round((stock.confidence ?? 0) * 100)}%</span>
+                </div>
+                <span className="text-[8px] sm:text-[9px] text-on-surface-variant/70 font-data-mono italic">K-Means cluster distance</span>
               </div>
             </div>
           </div>

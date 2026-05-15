@@ -44,6 +44,7 @@ from app.services.supervised_model import (
     train_predictor,
     predict_confidence,
     validate_30day,
+    FEATURE_NAMES,
 )
 
 logger = logging.getLogger(__name__)
@@ -359,6 +360,31 @@ async def get_stock_detail(
         ind_data = {k: v for k, v in ind.items() if v is not None}
         indicators_obj = TechnicalIndicators(**ind_data)
 
+        # ── XGBoost Prediction: Train on single ticker + get real confidence ──
+        macro_feats = await get_macro_features()
+        dxy_zscore   = macro_feats.get("dxy_zscore",   0.0)
+        us10y_zscore = macro_feats.get("us10y_zscore", 0.0)
+
+        # Train on this single ticker's data
+        predictor = train_predictor(
+            {ticker: df},
+            dxy_zscore=dxy_zscore,
+            us10y_zscore=us10y_zscore
+        )
+
+        # Get real XGBoost confidence score
+        raw_conf_score = 0.5  # default fallback
+        if predictor:
+            conf_dict = predict_confidence(
+                predictor,
+                {ticker: ind},
+                dxy_zscore=dxy_zscore,
+                us10y_zscore=us10y_zscore
+            )
+            raw_conf_score = conf_dict.get(ticker, 0.5)
+
+        is_high_conviction = raw_conf_score > 0.75
+
         return StockDetailResponse(
             ticker=ticker,
             name=meta.get("name", ticker),
@@ -384,8 +410,8 @@ async def get_stock_detail(
             trading_style=risk.get("trading_style", "Swing Trade"),
             trade_plan=TradePlan(**plan_raw) if plan_raw else None,
             backtest=BacktestResult(**bt_raw) if bt_raw else None,
-            confidence_score=0.78,
-            is_high_conviction=True,
+            confidence_score=raw_conf_score,
+            is_high_conviction=is_high_conviction,
             indicators=indicators_obj
         )
     except HTTPException as he:
