@@ -5,11 +5,14 @@ import CandlestickChart from '@/components/charts/CandlestickChart';
 import { formatPrice, formatPct, rsiLabel } from '@/lib/formatters';
 import TradePlanTable from '@/components/dashboard/TradePlanTable';
 import BacktestScorecard from '@/components/dashboard/BacktestScorecard';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Disclaimer from '@/components/layout/Disclaimer';
 
-export default function StockDetailClient({ ticker }) {
+export default function StockDetailClient() {
   const router = useRouter();
+  const params = useParams();
+  const tickerParam = params?.ticker || '';
+  const ticker = tickerParam.toUpperCase();
   const fullTicker = ticker.endsWith('.JK') ? ticker : `${ticker}.JK`;
   
   const { detail, ohlcv, ema20, ema50, bbUpper, bbMiddle, bbLower, isLoading, isError, error } =
