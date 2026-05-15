@@ -390,9 +390,13 @@ async def get_stock_detail(
         from app.services.trade_plan_engine import calculate_trade_plan
         from app.services.backtest_engine import run_backtest
         
-        strategy, reasoning = generate_reasoning(label, ind)
-        risk = calculate_risk_management(label, price_info.get("current_price", 0.0), ind.get("atr"))
-        plan_raw = calculate_trade_plan(df, ind, label, index_name="lq45")
+        # Apply macro penalty to adjust label based on macro regime
+        macro_raw = await get_macro_score()
+        adjusted_label, macro_confidence, macro_suffix = apply_macro_penalty(label, macro_raw)
+        
+        strategy, reasoning = generate_reasoning(adjusted_label, ind, macro_suffix)
+        risk = calculate_risk_management(adjusted_label, price_info.get("current_price", 0.0), ind.get("atr"))
+        plan_raw = calculate_trade_plan(df, ind, adjusted_label, index_name="lq45")
         bt_raw = run_backtest(df)
 
         all_meta = {**LQ45_TICKER_META, **KOMPAS100_TICKER_META, **DBX_TICKER_META}
@@ -448,11 +452,11 @@ async def get_stock_detail(
             week_change_pct=week_change,
             month_change_pct=month_change,
             volume=vol,
-            cluster_label=label,
-            cluster_color=CLUSTER_CONFIG.get(label, {}).get("color", "#FFFFFF"),
+            cluster_label=adjusted_label,
+            cluster_color=CLUSTER_CONFIG.get(adjusted_label, {}).get("color", "#FFFFFF"),
             strategy=strategy,
             reasoning=reasoning,
-            confidence=0.85,
+            confidence=macro_confidence,
             take_profit=risk.get("take_profit"),
             stop_loss=risk.get("stop_loss"),
             trading_style=risk.get("trading_style", "Swing Trade"),
