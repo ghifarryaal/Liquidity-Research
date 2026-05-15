@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
-from app.routers import cluster, chat
+from app.routers import cluster, chat, ai_assistant
 
 # ---------------------------------------------------------------------------
 # App configuration
@@ -54,6 +54,7 @@ app.add_middleware(
 
 app.include_router(cluster.router, prefix="/api", tags=["Clustering"])
 app.include_router(chat.router, prefix="/api", tags=["AI Mentor"])
+app.include_router(ai_assistant.router, tags=["AI Assistant"])
 
 # ---------------------------------------------------------------------------
 # Health check

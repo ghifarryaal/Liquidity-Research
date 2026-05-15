@@ -9,25 +9,54 @@
 
 ## 🌟 Features
 
-### 🤖 AI-Powered Analysis
-- **Machine Learning Clustering**: Automatically groups stocks into actionable strategies (Buy the Dip, Momentum, Breakout, etc.)
-- **Supervised Learning**: Confidence scoring for each recommendation
-- **Macro Sentiment Weighting**: Adjusts strategies based on market conditions
+### 🤖 AI-Powered Conversational Assistant (NEW!)
+- **Ask Questions in Natural Language**: "Why is this stock classified as Momentum?"
+- **Context-Aware Responses**: AI understands your stock's technical indicators and ML classification
+- **Multi-Intent Recognition**: Handles questions about risk, timing, strategy, and more
+- **Confidence Scoring**: Know how certain the AI is about each answer
+- **Educational**: Learn while you analyze
 
-### 📊 Technical Analysis
+### 🧠 Hybrid Machine Learning
+- **Unsupervised Learning (K-Means)**: Discovers natural patterns in stock behavior
+- **Supervised Learning (Random Forest)**: Validates classifications with confidence scores
+- **Transparent Reasoning**: Understand WHY stocks are classified, not just HOW
+
+### 📊 Intelligent Stock Clustering
+- **Buy the Dip**: Oversold stocks with strong fundamentals
+- **Momentum**: Strong uptrend with volume confirmation
+- **Breakout**: Consolidation breakout patterns
+- **Reversal**: Trend reversal signals
+- **Consolidation**: Range-bound trading opportunities
+- **Avoid**: Weak signals, better opportunities elsewhere
+
+### 📈 Comprehensive Technical Analysis
 - **20+ Technical Indicators**: RSI, MACD, Bollinger Bands, EMA, ATR, Volume Ratio
 - **Interactive Charts**: Real-time candlestick charts with technical overlays
 - **Historical Data**: 180-day analysis window
+- **Real-Time Backtesting**: See historical performance for each recommendation
 
-### 💼 Trading Intelligence
-- **Automated Trade Plans**: Entry, stop-loss, and take-profit levels
-- **Backtesting Engine**: Historical performance validation
+### 💼 Automated Trade Planning
+- **AI-Generated Plans**: Entry, stop-loss, and take-profit levels
 - **Risk Management**: Position sizing and risk/reward calculations
+- **Strategy Recommendations**: Customized for each stock's characteristics
+- **Execution Guidance**: Step-by-step trading instructions
 
-### 🎓 Educational Features
-- **AI Reasoning**: Transparent explanations for each recommendation
-- **Strategy Insights**: Learn why stocks are categorized in specific clusters
-- **No Login Required**: Accessible to all Indonesian retail investors
+### 🌍 Adaptive Macro Weighting
+- **Market Sentiment Analysis**: Aggregate market-wide indicators
+- **Panic Meter**: Real-time fear/greed index
+- **Dynamic Adjustments**: Recommendations adapt to market conditions
+
+### 🎓 Educational First
+- **Transparent AI**: Understand the reasoning behind every recommendation
+- **Learning Resources**: Built-in explanations and strategy guides
+- **No "Buy/Sell" Buttons**: Encourages informed decision-making
+- **Risk Education**: Learn proper risk management
+
+### 🔒 Privacy-First Design
+- **No Login Required**: Zero-friction access to all features
+- **No Data Collection**: Your analysis stays private
+- **No Tracking**: Respects user privacy
+- **Open Access**: Democratizing sophisticated analysis
 
 ## 🏗️ Architecture
 
