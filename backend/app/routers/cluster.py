@@ -392,28 +392,6 @@ async def get_stock_detail(
         from app.services.trade_plan_engine import calculate_trade_plan
         from app.services.backtest_engine import run_backtest
         
-        # Generate reasoning and risk management based on label
-        strategy, reasoning = generate_reasoning(label, ind)
-        risk = calculate_risk_management(label, price_info.get("current_price", 0.0), ind.get("atr"))
-        plan_raw = calculate_trade_plan(df, ind, label, index_name="lq45")
-        bt_raw = run_backtest(df)
-        
-        # Get Buy/Hold/Sell signal
-        signal_data = get_buy_hold_sell_signal(label, raw_conf_score)
-
-        all_meta = {**LQ45_TICKER_META, **KOMPAS100_TICKER_META, **DBX_TICKER_META}
-        meta = all_meta.get(ticker, {"name": ticker, "sector": "Unknown"})
-
-        current_price = price_info.get("current_price") or 0.0
-        price_change = price_info.get("price_change_pct") or 0.0
-        week_change = price_info.get("week_change_pct") or 0.0
-        month_change = price_info.get("month_change_pct") or 0.0
-        vol = price_info.get("volume") or 0
-        
-        # Construct indicators safely (only non-null values)
-        ind_data = {k: v for k, v in ind.items() if v is not None}
-        indicators_obj = TechnicalIndicators(**ind_data)
-
         # ── XGBoost Prediction: Train on single ticker + get real confidence ──
         macro_feats = await get_macro_features()
         dxy_zscore   = macro_feats.get("dxy_zscore",   0.0)
@@ -438,6 +416,28 @@ async def get_stock_detail(
             raw_conf_score = conf_dict.get(ticker, 0.5)
 
         is_high_conviction = raw_conf_score > 0.75
+        
+        # Generate reasoning and risk management based on label
+        strategy, reasoning = generate_reasoning(label, ind)
+        risk = calculate_risk_management(label, price_info.get("current_price", 0.0), ind.get("atr"))
+        plan_raw = calculate_trade_plan(df, ind, label, index_name="lq45")
+        bt_raw = run_backtest(df)
+        
+        # Get Buy/Hold/Sell signal
+        signal_data = get_buy_hold_sell_signal(label, raw_conf_score)
+
+        all_meta = {**LQ45_TICKER_META, **KOMPAS100_TICKER_META, **DBX_TICKER_META}
+        meta = all_meta.get(ticker, {"name": ticker, "sector": "Unknown"})
+
+        current_price = price_info.get("current_price") or 0.0
+        price_change = price_info.get("price_change_pct") or 0.0
+        week_change = price_info.get("week_change_pct") or 0.0
+        month_change = price_info.get("month_change_pct") or 0.0
+        vol = price_info.get("volume") or 0
+        
+        # Construct indicators safely (only non-null values)
+        ind_data = {k: v for k, v in ind.items() if v is not None}
+        indicators_obj = TechnicalIndicators(**ind_data)
 
         return StockDetailResponse(
             ticker=ticker,
