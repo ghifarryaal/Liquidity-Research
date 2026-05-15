@@ -58,6 +58,17 @@ export default function StockDetailClient() {
   const volRatio = indicators?.volume_ratio || 0;
   const tickerDisplay = (stock.ticker || ticker || '').replace('.JK', '') || ticker;
 
+  // Debug logging
+  if (typeof window !== 'undefined') {
+    console.log('[StockDetailClient] Stock data:', {
+      ticker: stock.ticker,
+      signal: stock.signal,
+      signal_strength: stock.signal_strength,
+      signal_recommendation: stock.signal_recommendation,
+      confidence_score: stock.confidence_score,
+    });
+  }
+
   return (
     <div className="min-h-screen bg-background text-on-background p-4 md:p-6 lg:p-8 pt-[88px] md:pt-[104px]">
       <Disclaimer />

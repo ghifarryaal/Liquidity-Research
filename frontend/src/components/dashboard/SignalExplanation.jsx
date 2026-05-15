@@ -76,7 +76,18 @@ const SIGNAL_DETAILS = {
 };
 
 export default function SignalExplanation({ signal, signalStrength, signalRecommendation, confidenceScore }) {
-  if (!signal) return null;
+  // Debug: log what we're receiving
+  if (typeof window !== 'undefined') {
+    console.log('[SignalExplanation] Received:', { signal, signalStrength, signalRecommendation, confidenceScore });
+  }
+  
+  if (!signal) {
+    return (
+      <div className="bg-surface-container rounded-xl border border-outline-variant p-4 md:p-6 lg:p-8 text-center text-on-surface-variant">
+        <p className="text-sm">Signal data tidak tersedia</p>
+      </div>
+    );
+  }
 
   const details = SIGNAL_DETAILS[signal] || SIGNAL_DETAILS['HOLD'];
   const confidencePct = Math.round((confidenceScore ?? 0.5) * 100);
