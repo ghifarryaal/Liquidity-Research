@@ -15,6 +15,13 @@ const FILTER_OPTIONS = [
   { value: 'High Risk / Avoid', label: 'Risiko Tinggi', icon: 'warning' },
 ];
 
+const SIGNAL_FILTER_OPTIONS = [
+  { value: 'all', label: 'Semua Sinyal', icon: 'filter_list', color: '#94a3b8' },
+  { value: 'BUY', label: 'Buy', icon: 'arrow_upward', color: '#00FFB2', emoji: '🟢' },
+  { value: 'HOLD', label: 'Hold', icon: 'pause', color: '#f59e0b', emoji: '🟡' },
+  { value: 'SELL', label: 'Sell', icon: 'arrow_downward', color: '#ef4444', emoji: '🔴' },
+];
+
 const SORT_OPTIONS = [
   { value: 'confidence', label: 'Keyakinan' },
   { value: 'change', label: 'Perubahan' },
@@ -94,6 +101,7 @@ function SignalBadge({ signal }) {
 export default function InsightFeed({ stocks, isLoading, isError }) {
   const router = useRouter();
   const [activeFilter, setActiveFilter] = useState('all');
+  const [activeSignalFilter, setActiveSignalFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState('confidence');
 
@@ -102,7 +110,21 @@ export default function InsightFeed({ stocks, isLoading, isError }) {
 
   const filtered = useMemo(() => {
     let list = [...(stocks || [])];
-    if (activeFilter !== 'all') list = list.filter(s => s.cluster_label === activeFilter);
+    
+    // Filter by cluster label
+    if (activeFilter !== 'all') {
+      list = list.filter(s => s.cluster_label === activeFilter);
+    }
+    
+    // Filter by signal
+    if (activeSignalFilter !== 'all') {
+      list = list.filter(s => {
+        const signal = s.signal || 'HOLD';
+        return signal.includes(activeSignalFilter);
+      });
+    }
+    
+    // Filter by search
     if (search.trim()) {
       const q = search.trim().toLowerCase();
       list = list.filter(s =>
@@ -111,11 +133,14 @@ export default function InsightFeed({ stocks, isLoading, isError }) {
         s.sector?.toLowerCase().includes(q)
       );
     }
+    
+    // Sort
     if (sortBy === 'confidence') list.sort((a, b) => b.confidence - a.confidence);
     else if (sortBy === 'change') list.sort((a, b) => b.price_change_pct - a.price_change_pct);
     else if (sortBy === 'ticker') list.sort((a, b) => a.ticker.localeCompare(b.ticker));
+    
     return list;
-  }, [stocks, activeFilter, search, sortBy]);
+  }, [stocks, activeFilter, activeSignalFilter, search, sortBy]);
 
   if (isError) {
     return (
@@ -184,25 +209,65 @@ export default function InsightFeed({ stocks, isLoading, isError }) {
             </button>
           )}
         </div>
-        {/* Filter chips */}
-        <div className="flex flex-wrap gap-2">
-          {FILTER_OPTIONS.map(opt => {
-            const isActive = activeFilter === opt.value;
-            return (
-              <button
-                key={opt.value}
-                onClick={() => setActiveFilter(isActive && opt.value !== 'all' ? 'all' : opt.value)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold transition-all ${
-                  isActive
-                    ? 'bg-primary/15 border border-primary/50 text-primary'
-                    : 'bg-surface border border-outline-variant text-on-surface-variant hover:border-outline hover:text-on-surface'
-                }`}
-              >
-                <span className="material-symbols-outlined text-[13px]">{opt.icon}</span>
-                {opt.label}
-              </button>
-            );
-          })}
+        
+        {/* Filter chips - Cluster */}
+        <div>
+          <div className="text-[9px] md:text-[10px] text-on-surface-variant uppercase tracking-wider font-bold mb-2 px-1">
+            Filter Klaster AI
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {FILTER_OPTIONS.map(opt => {
+              const isActive = activeFilter === opt.value;
+              return (
+                <button
+                  key={opt.value}
+                  onClick={() => setActiveFilter(isActive && opt.value !== 'all' ? 'all' : opt.value)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold transition-all ${
+                    isActive
+                      ? 'bg-primary/15 border border-primary/50 text-primary'
+                      : 'bg-surface border border-outline-variant text-on-surface-variant hover:border-outline hover:text-on-surface'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[13px]">{opt.icon}</span>
+                  {opt.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Filter chips - Signal */}
+        <div>
+          <div className="text-[9px] md:text-[10px] text-on-surface-variant uppercase tracking-wider font-bold mb-2 px-1">
+            Filter Sinyal Trading
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {SIGNAL_FILTER_OPTIONS.map(opt => {
+              const isActive = activeSignalFilter === opt.value;
+              return (
+                <button
+                  key={opt.value}
+                  onClick={() => setActiveSignalFilter(isActive && opt.value !== 'all' ? 'all' : opt.value)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold transition-all ${
+                    isActive
+                      ? 'border-2'
+                      : 'bg-surface border border-outline-variant hover:border-outline'
+                  }`}
+                  style={isActive ? {
+                    background: `${opt.color}15`,
+                    borderColor: opt.color,
+                    color: opt.color
+                  } : {
+                    color: 'var(--md-sys-color-on-surface-variant)'
+                  }}
+                >
+                  {opt.emoji && <span>{opt.emoji}</span>}
+                  {!opt.emoji && <span className="material-symbols-outlined text-[13px]">{opt.icon}</span>}
+                  {opt.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
@@ -250,7 +315,7 @@ export default function InsightFeed({ stocks, isLoading, isError }) {
                     <div className="flex flex-col items-center gap-3">
                       <span className="material-symbols-outlined text-4xl text-on-surface-variant/40">search_off</span>
                       <p className="text-on-surface-variant text-sm">Tidak ada emiten yang sesuai filter</p>
-                      <button onClick={() => { setSearch(''); setActiveFilter('all'); }} className="text-primary text-xs font-bold hover:underline">
+                      <button onClick={() => { setSearch(''); setActiveFilter('all'); setActiveSignalFilter('all'); }} className="text-primary text-xs font-bold hover:underline">
                         Reset filter
                       </button>
                     </div>
@@ -308,7 +373,7 @@ export default function InsightFeed({ stocks, isLoading, isError }) {
           <div className="py-16 text-center flex flex-col items-center gap-3">
             <span className="material-symbols-outlined text-4xl text-on-surface-variant/40">search_off</span>
             <p className="text-on-surface-variant text-sm">Tidak ada emiten yang sesuai</p>
-            <button onClick={() => { setSearch(''); setActiveFilter('all'); }} className="text-primary text-xs font-bold hover:underline">
+            <button onClick={() => { setSearch(''); setActiveFilter('all'); setActiveSignalFilter('all'); }} className="text-primary text-xs font-bold hover:underline">
               Reset filter
             </button>
           </div>
