@@ -367,6 +367,14 @@ async def get_stock_detail(
         is_high_risk = (bb_width > 10.0) or (atr_pct > 4.0) or (vol_ratio > 3.0)
         is_dip = (rsi < 42) and (bb_pos < 0.35) and (ema20_gap < -1.0)
         
+        # DEBUG: Log momentum calculation
+        logger.info(
+            "[%s] Momentum calc: RSI=%.1f MACD=%.2f EMA20=%.2f EMA50=%.2f BB=%.2f → momentum=%.2f | "
+            "is_high_risk=%s is_dip=%s",
+            ticker, rsi, macd or 0, ema20_gap, ema50_gap, bb_pos, momentum,
+            is_high_risk, is_dip
+        )
+        
         # Determine label based on momentum and risk flags
         if momentum > 1.0:
             label = "Trending / Momentum"
