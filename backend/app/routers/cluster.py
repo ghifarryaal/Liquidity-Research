@@ -332,6 +332,7 @@ async def get_stock_detail(
         macd = ind.get("macd")
         macd_sig = ind.get("macd_signal")
         ema20_gap = ind.get("ema20_gap_pct", 0)
+        ema50_gap = ind.get("ema50_gap_pct", 0)
         bb_pos = ind.get("bb_position", 0.5)
         bb_width = ind.get("bb_width", 0)
         atr_pct = ind.get("atr_pct", 0)
@@ -355,8 +356,9 @@ async def get_stock_detail(
             macd_str = macd - macd_sig
             momentum += float(np.clip(macd_str * 3, -1.5, 1.5))
         
-        # EMA gap scoring
+        # EMA gap scoring (BOTH ema20 and ema50)
         momentum += float(np.clip(ema20_gap / 5.0, -1.0, 1.0))
+        momentum += float(np.clip(ema50_gap / 8.0, -0.8, 0.8))
         
         # Bollinger Band position scoring
         momentum += (bb_pos - 0.5) * 1.5
