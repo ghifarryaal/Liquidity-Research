@@ -182,7 +182,7 @@ export default function BacktestScorecard({ backtest }) {
                 </li>
                 <li className="flex gap-2">
                   <span className="text-primary font-bold">•</span>
-                  <span><strong>Profit Factor:</strong> Rasio profit terhadap loss (>1.5 = sangat baik)</span>
+                  <span><strong>Profit Factor:</strong> Rasio profit terhadap loss (nilai ideal: 1.5+)</span>
                 </li>
                 <li className="flex gap-2">
                   <span className="text-primary font-bold">•</span>
