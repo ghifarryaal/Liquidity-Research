@@ -2,17 +2,56 @@
 
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { CLUSTER_CONFIG } from '@/constants/clusterConfig';
-import { formatPrice, formatPct, changeClass } from '@/lib/formatters';
+import { changeClass } from '@/lib/formatters';
 
 const FILTER_OPTIONS = [
-  { value: 'all', label: 'Semua' },
-  { value: 'Buy the Dip', label: 'Beli Saat Turun' },
-  { value: 'Trending / Momentum', label: 'Momentum' },
-  { value: 'Hold / Sideways', label: 'Konsolidasi Netral' },
-  { value: 'High Risk / Avoid', label: 'Risiko Tinggi' },
+  { value: 'all', label: 'Semua', icon: 'grid_view' },
+  { value: 'Buy the Dip', label: 'Beli Saat Turun', icon: 'trending_down' },
+  { value: 'Trending / Momentum', label: 'Momentum', icon: 'trending_up' },
+  { value: 'Hold / Sideways', label: 'Konsolidasi', icon: 'trending_flat' },
+  { value: 'High Risk / Avoid', label: 'Risiko Tinggi', icon: 'warning' },
 ];
+
+const SORT_OPTIONS = [
+  { value: 'confidence', label: 'Keyakinan' },
+  { value: 'change', label: 'Perubahan' },
+  { value: 'ticker', label: 'Ticker' },
+];
+
+const CLUSTER_COLORS = {
+  'Buy the Dip':          { bg: 'rgba(0,255,178,0.1)',   border: 'rgba(0,255,178,0.3)',   text: '#00FFB2' },
+  'Trending / Momentum':  { bg: 'rgba(59,130,246,0.1)',  border: 'rgba(59,130,246,0.3)',  text: '#60a5fa' },
+  'Hold / Sideways':      { bg: 'rgba(148,163,184,0.1)', border: 'rgba(148,163,184,0.3)', text: '#94a3b8' },
+  'High Risk / Avoid':    { bg: 'rgba(239,68,68,0.1)',   border: 'rgba(239,68,68,0.3)',   text: '#f87171' },
+};
+
+function ClusterChip({ label }) {
+  const cfg = CLUSTER_CONFIG[label];
+  const c = CLUSTER_COLORS[label] || { bg: 'rgba(255,255,255,0.05)', border: 'rgba(255,255,255,0.1)', text: '#94a3b8' };
+  return (
+    <span
+      className="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold border whitespace-nowrap"
+      style={{ background: c.bg, borderColor: c.border, color: c.text }}
+    >
+      {cfg?.label || label}
+    </span>
+  );
+}
+
+function ConfidenceMini({ score }) {
+  const pct = Math.round((score ?? 0) * 100);
+  const color = pct >= 75 ? '#00FFB2' : pct >= 50 ? '#60a5fa' : '#f59e0b';
+  return (
+    <div className="flex items-center gap-2">
+      <div className="w-12 md:w-16 h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+        <div className="h-full rounded-full" style={{ width: `${pct}%`, background: color }} />
+      </div>
+      <span className="font-data-mono text-[11px] font-bold" style={{ color }}>{pct}%</span>
+    </div>
+  );
+}
 
 export default function InsightFeed({ stocks, isLoading, isError }) {
   const router = useRouter();
@@ -20,206 +59,189 @@ export default function InsightFeed({ stocks, isLoading, isError }) {
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState('confidence');
 
+  const formatPrice = (val) => new Intl.NumberFormat('id-ID').format(val || 0);
+  const formatPct = (val) => `${val > 0 ? '+' : ''}${(val || 0).toFixed(2)}%`;
+
   const filtered = useMemo(() => {
     let list = [...(stocks || [])];
-
-    if (activeFilter !== 'all') {
-      list = list.filter(s => s.cluster_label === activeFilter);
-    }
-
+    if (activeFilter !== 'all') list = list.filter(s => s.cluster_label === activeFilter);
     if (search.trim()) {
       const q = search.trim().toLowerCase();
-      list = list.filter(
-        s =>
-          s.ticker.toLowerCase().includes(q) ||
-          s.name.toLowerCase().includes(q) ||
-          s.sector?.toLowerCase().includes(q)
+      list = list.filter(s =>
+        s.ticker.toLowerCase().includes(q) ||
+        s.name.toLowerCase().includes(q) ||
+        s.sector?.toLowerCase().includes(q)
       );
     }
-
-    if (sortBy === 'confidence') {
-      list.sort((a, b) => b.confidence - a.confidence);
-    } else if (sortBy === 'change') {
-      list.sort((a, b) => b.price_change_pct - a.price_change_pct);
-    } else if (sortBy === 'ticker') {
-      list.sort((a, b) => a.ticker.localeCompare(b.ticker));
-    }
-
+    if (sortBy === 'confidence') list.sort((a, b) => b.confidence - a.confidence);
+    else if (sortBy === 'change') list.sort((a, b) => b.price_change_pct - a.price_change_pct);
+    else if (sortBy === 'ticker') list.sort((a, b) => a.ticker.localeCompare(b.ticker));
     return list;
   }, [stocks, activeFilter, search, sortBy]);
 
   if (isError) {
     return (
       <div className="lg:col-span-12 flex flex-col items-center justify-center py-24 gap-4 bg-surface-container rounded-xl border border-outline-variant">
-        <span className="material-symbols-outlined text-4xl text-error">warning</span>
+        <span className="material-symbols-outlined text-5xl text-semantic-bearish">cloud_off</span>
         <h3 className="text-lg font-semibold text-on-surface">Gagal memuat data</h3>
+        <p className="text-sm text-on-surface-variant">Periksa koneksi internet atau coba refresh halaman</p>
       </div>
     );
   }
 
-  const formatPrice = (val) => new Intl.NumberFormat('id-ID').format(val || 0);
-  const formatPct = (val) => `${val > 0 ? '+' : ''}${(val || 0).toFixed(2)}%`;
-
   return (
     <div className="lg:col-span-12 bg-surface-container-lowest flex flex-col pt-2">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 gap-4">
+
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-4 md:mb-6 gap-3">
         <div>
-          <h1 className="font-display-sm text-display-sm text-on-surface mb-1">Penyaring Saham Taktis</h1>
-          <p className="text-on-surface-variant text-body-standard font-body-standard">Sinyal kuantitatif waktu nyata berdasarkan klasterisasi AI.</p>
+          <h1 className="font-display-sm text-xl md:text-2xl text-on-surface mb-1">Penyaring Saham Taktis</h1>
+          <p className="text-on-surface-variant text-xs md:text-sm">
+            Sinyal kuantitatif waktu nyata ·{' '}
+            {isLoading ? 'Memuat...' : `${filtered.length} dari ${stocks?.length || 0} emiten`}
+          </p>
+        </div>
+        {/* Sort */}
+        <div className="flex items-center gap-2 text-xs text-on-surface-variant">
+          <span className="hidden sm:inline opacity-60">Urutkan:</span>
+          <div className="flex gap-1">
+            {SORT_OPTIONS.map(opt => (
+              <button
+                key={opt.value}
+                onClick={() => setSortBy(opt.value)}
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all ${
+                  sortBy === opt.value
+                    ? 'bg-primary/20 text-primary border border-primary/40'
+                    : 'bg-surface-container border border-outline-variant text-on-surface-variant hover:text-on-surface'
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Toolbar: Search & Filters */}
-      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-4 p-3 bg-surface-container rounded-lg border border-outline-variant">
-        <div className="relative w-full xl:w-[320px]">
+      {/* Toolbar */}
+      <div className="flex flex-col gap-3 mb-4 p-3 bg-surface-container rounded-xl border border-outline-variant">
+        {/* Search */}
+        <div className="relative">
           <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
           <input
             type="text"
-            placeholder="Cari emiten, sektor, atau indeks..."
+            placeholder="Cari emiten, nama, atau sektor..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full bg-surface border border-outline-variant rounded pl-9 pr-3 py-1.5 text-on-surface focus:border-primary focus:ring-1 focus:ring-primary transition-all text-[13px] outline-none placeholder:text-on-surface-variant"
+            className="w-full bg-surface border border-outline-variant rounded-lg pl-9 pr-9 py-2 text-on-surface focus:border-primary focus:ring-1 focus:ring-primary transition-all text-[13px] outline-none placeholder:text-on-surface-variant"
           />
+          {search && (
+            <button
+              onClick={() => setSearch('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface"
+            >
+              <span className="material-symbols-outlined text-[16px]">close</span>
+            </button>
+          )}
         </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-[12px] text-on-surface-variant mr-2">Filter Klaster:</span>
+        {/* Filter chips */}
+        <div className="flex flex-wrap gap-2">
           {FILTER_OPTIONS.map(opt => {
             const isActive = activeFilter === opt.value;
             return (
               <button
                 key={opt.value}
-                onClick={() => setActiveFilter(opt.value)}
-                className={`px-3 py-1 rounded-full text-[12px] flex items-center space-x-1 transition-colors ${
-                  isActive 
-                    ? 'bg-surface border border-primary text-primary' 
+                onClick={() => setActiveFilter(isActive && opt.value !== 'all' ? 'all' : opt.value)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold transition-all ${
+                  isActive
+                    ? 'bg-primary/15 border border-primary/50 text-primary'
                     : 'bg-surface border border-outline-variant text-on-surface-variant hover:border-outline hover:text-on-surface'
                 }`}
               >
-                <span>{opt.label}</span>
-                {isActive && activeFilter !== 'all' && (
-                  <span className="material-symbols-outlined text-[14px]">close</span>
-                )}
+                <span className="material-symbols-outlined text-[13px]">{opt.icon}</span>
+                {opt.label}
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* Terminal Data Grid */}
-      <div className="border border-outline-variant rounded-lg bg-surface overflow-hidden">
+      {/* ── Desktop Table ── */}
+      <div className="hidden md:block border border-outline-variant rounded-xl bg-surface overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left whitespace-nowrap">
             <thead>
-              <tr className="border-b border-outline-variant">
-                <th className="py-2 px-4 font-heading-table text-heading-table text-on-surface-variant uppercase text-left">
-                  Emiten
+              <tr className="border-b border-outline-variant bg-surface-container-high">
+                <th className="py-2.5 px-4 text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">Emiten</th>
+                <th className="py-2.5 px-4 text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">Harga</th>
+                <th className="py-2.5 px-4 text-[11px] font-bold text-on-surface-variant uppercase tracking-wider text-right cursor-pointer hover:text-primary transition-colors" onClick={() => setSortBy('change')}>
+                  <span className="flex items-center justify-end gap-1">
+                    1H %
+                    {sortBy === 'change' && <span className="material-symbols-outlined text-[13px] text-primary">arrow_downward</span>}
+                  </span>
                 </th>
-                <th className="py-2 px-4 font-heading-table text-heading-table text-on-surface-variant uppercase text-left">
-                  Harga
-                </th>
-                <th className="py-2 px-4 font-heading-table text-heading-table text-on-surface-variant uppercase text-right cursor-pointer hover:text-on-surface transition-colors" onClick={() => setSortBy('change')}>
-                  <div className="flex items-center justify-end space-x-1">
-                    <span>1H %</span>
-                    <span className={`material-symbols-outlined text-[14px] ${sortBy === 'change' ? 'opacity-100 text-primary' : 'opacity-0'}`}>arrow_downward</span>
-                  </div>
-                </th>
-                <th className="py-2 px-4 font-heading-table text-heading-table text-on-surface-variant uppercase text-right">
-                  5H %
-                </th>
-                <th className="py-2 px-4 font-heading-table text-heading-table text-on-surface-variant uppercase text-right">
-                  30H %
-                </th>
-                <th className="py-2 px-4 font-heading-table text-heading-table text-on-surface-variant uppercase text-left">
-                  Klaster AI
-                </th>
-                <th className="py-2 px-4 font-heading-table text-heading-table text-on-surface-variant uppercase cursor-pointer hover:text-on-surface transition-colors" onClick={() => setSortBy('confidence')}>
-                  <div className="flex items-center space-x-1">
-                    <span>Keyakinan</span>
-                    <span className={`material-symbols-outlined text-[14px] ${sortBy === 'confidence' ? 'opacity-100 text-primary' : 'opacity-0'}`}>arrow_downward</span>
-                  </div>
+                <th className="py-2.5 px-4 text-[11px] font-bold text-on-surface-variant uppercase tracking-wider text-right">5H %</th>
+                <th className="py-2.5 px-4 text-[11px] font-bold text-on-surface-variant uppercase tracking-wider text-right">30H %</th>
+                <th className="py-2.5 px-4 text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">Klaster AI</th>
+                <th className="py-2.5 px-4 text-[11px] font-bold text-on-surface-variant uppercase tracking-wider cursor-pointer hover:text-primary transition-colors" onClick={() => setSortBy('confidence')}>
+                  <span className="flex items-center gap-1">
+                    Keyakinan
+                    {sortBy === 'confidence' && <span className="material-symbols-outlined text-[13px] text-primary">arrow_downward</span>}
+                  </span>
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-outline-variant relative">
+            <tbody className="divide-y divide-outline-variant">
               {isLoading ? (
+                Array.from({ length: 8 }).map((_, i) => (
+                  <tr key={i}>
+                    {Array.from({ length: 7 }).map((_, j) => (
+                      <td key={j} className="py-3 px-4">
+                        <div className="h-3.5 bg-surface-container-high rounded animate-pulse" style={{ width: j === 0 ? '80px' : j === 5 ? '100px' : '56px' }} />
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-8 text-center text-on-surface-variant">
-                    <div className="flex items-center justify-center gap-2">
-                      <div className="w-4 h-4 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-                      Memuat data...
+                  <td colSpan={7} className="py-16 text-center">
+                    <div className="flex flex-col items-center gap-3">
+                      <span className="material-symbols-outlined text-4xl text-on-surface-variant/40">search_off</span>
+                      <p className="text-on-surface-variant text-sm">Tidak ada emiten yang sesuai filter</p>
+                      <button onClick={() => { setSearch(''); setActiveFilter('all'); }} className="text-primary text-xs font-bold hover:underline">
+                        Reset filter
+                      </button>
                     </div>
                   </td>
                 </tr>
-              ) : filtered.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="py-8 text-center text-on-surface-variant">Tidak ada emiten yang sesuai.</td>
-                </tr>
               ) : (
-                filtered.map((stock) => (
-                  <tr 
-                    key={stock.ticker} 
+                filtered.map((stock, idx) => (
+                  <motion.tr
+                    key={stock.ticker}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: Math.min(idx * 0.02, 0.4) }}
                     className="hover:bg-surface-container-low transition-colors cursor-pointer group"
                     onClick={() => router.push(`/stock/${stock.ticker.replace('.JK', '')}`)}
                   >
-                    <td className="py-2 px-4">
+                    <td className="py-2.5 px-4">
                       <div className="flex flex-col">
-                        <span className="font-ticker text-on-surface group-hover:text-primary transition-colors">{stock.ticker.replace('.JK', '')}</span>
-                        <span className="text-[10px] text-on-surface-variant truncate max-w-[120px]">{stock.name}</span>
-                        <span className="text-[9px] text-slate-500 font-medium uppercase tracking-tighter">{stock.sector}</span>
+                        <span className="font-mono font-bold text-sm text-on-surface group-hover:text-primary transition-colors">{stock.ticker.replace('.JK', '')}</span>
+                        <span className="text-[10px] text-on-surface-variant truncate max-w-[140px]">{stock.name}</span>
+                        <span className="text-[9px] text-on-surface-variant/50 uppercase tracking-tight">{stock.sector}</span>
                       </div>
                     </td>
-                    <td className="py-2 px-4 font-data-mono text-on-surface">
-                      {formatPrice(stock.current_price)}
-                    </td>
-                    <td className={`py-2 px-4 text-right font-data-mono font-bold ${changeClass(stock.price_change_pct)}`}>
-                      <div className="flex items-center justify-end gap-0.5">
+                    <td className="py-2.5 px-4 font-data-mono text-sm text-on-surface">{formatPrice(stock.current_price)}</td>
+                    <td className={`py-2.5 px-4 text-right font-data-mono text-sm font-bold ${changeClass(stock.price_change_pct)}`}>
+                      <span className="flex items-center justify-end gap-0.5">
                         {stock.price_change_pct > 0 ? '▲' : stock.price_change_pct < 0 ? '▼' : ''}
                         {formatPct(stock.price_change_pct)}
-                      </div>
+                      </span>
                     </td>
-                    <td className={`py-2 px-4 text-right font-data-mono font-bold ${changeClass(stock.week_change_pct)}`}>
-                      <div className="flex items-center justify-end gap-0.5">
-                        {stock.week_change_pct > 0 ? '▲' : stock.week_change_pct < 0 ? '▼' : ''}
-                        {formatPct(stock.week_change_pct)}
-                      </div>
-                    </td>
-                    <td className={`py-2 px-4 text-right font-data-mono font-bold ${changeClass(stock.month_change_pct)}`}>
-                      <div className="flex items-center justify-end gap-0.5">
-                        {stock.month_change_pct > 0 ? '▲' : stock.month_change_pct < 0 ? '▼' : ''}
-                        {formatPct(stock.month_change_pct)}
-                      </div>
-                    </td>
-                    <td className="py-2 px-4">
-                      <div className="flex flex-col gap-1">
-                        <span className="inline-block px-2 py-0.5 rounded text-[11px] font-medium bg-surface-container-highest text-on-surface border border-outline-variant w-fit">
-                          {CLUSTER_CONFIG[stock.cluster_label]?.label || stock.cluster_label}
-                        </span>
-                        {stock.trade_plan && (
-                          <span className="text-[9px] text-primary font-bold uppercase flex items-center gap-0.5">
-                            <span className="material-symbols-outlined text-[12px]">verified</span>
-                            Plan Ready
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="py-2 px-4">
-                      <div className="flex flex-col">
-                        <span className="font-data-mono text-[12px] font-bold text-primary">
-                          {Math.round(stock.confidence * 100)}%
-                        </span>
-                        <div className="w-16 h-1 bg-surface-container-highest rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-primary" 
-                            style={{ width: `${stock.confidence * 100}%` }}
-                          />
-                        </div>
-                        <span className="font-data-mono text-[11px] text-on-surface-variant">
-                          {Math.round(stock.confidence * 100)}
-                        </span>
-                      </div>
-                    </td>
-                  </tr>
+                    <td className={`py-2.5 px-4 text-right font-data-mono text-sm font-bold ${changeClass(stock.week_change_pct)}`}>{formatPct(stock.week_change_pct)}</td>
+                    <td className={`py-2.5 px-4 text-right font-data-mono text-sm font-bold ${changeClass(stock.month_change_pct)}`}>{formatPct(stock.month_change_pct)}</td>
+                    <td className="py-2.5 px-4"><ClusterChip label={stock.cluster_label} /></td>
+                    <td className="py-2.5 px-4"><ConfidenceMini score={stock.confidence} /></td>
+                  </motion.tr>
                 ))
               )}
             </tbody>
@@ -227,6 +249,57 @@ export default function InsightFeed({ stocks, isLoading, isError }) {
         </div>
       </div>
 
+      {/* ── Mobile Cards ── */}
+      <div className="md:hidden flex flex-col gap-2">
+        {isLoading ? (
+          Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="h-[72px] bg-surface-container rounded-xl animate-pulse" />
+          ))
+        ) : filtered.length === 0 ? (
+          <div className="py-16 text-center flex flex-col items-center gap-3">
+            <span className="material-symbols-outlined text-4xl text-on-surface-variant/40">search_off</span>
+            <p className="text-on-surface-variant text-sm">Tidak ada emiten yang sesuai</p>
+            <button onClick={() => { setSearch(''); setActiveFilter('all'); }} className="text-primary text-xs font-bold hover:underline">
+              Reset filter
+            </button>
+          </div>
+        ) : (
+          filtered.map((stock, idx) => (
+            <motion.div
+              key={stock.ticker}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: Math.min(idx * 0.03, 0.5) }}
+              onClick={() => router.push(`/stock/${stock.ticker.replace('.JK', '')}`)}
+              className="bg-surface-container border border-outline-variant rounded-xl p-3 cursor-pointer hover:border-primary/40 hover:bg-surface-container-high transition-all active:scale-[0.99]"
+            >
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <div className="min-w-0">
+                  <span className="font-mono font-bold text-sm text-on-surface">{stock.ticker.replace('.JK', '')}</span>
+                  <p className="text-[10px] text-on-surface-variant truncate">{stock.name}</p>
+                </div>
+                <div className="flex flex-col items-end gap-0.5 shrink-0">
+                  <span className={`font-data-mono text-sm font-bold ${changeClass(stock.price_change_pct)}`}>
+                    {formatPct(stock.price_change_pct)}
+                  </span>
+                  <span className="font-data-mono text-xs text-on-surface">{formatPrice(stock.current_price)}</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <ClusterChip label={stock.cluster_label} />
+                <ConfidenceMini score={stock.confidence} />
+              </div>
+            </motion.div>
+          ))
+        )}
+      </div>
+
+      {/* Footer */}
+      {!isLoading && filtered.length > 0 && (
+        <p className="text-center text-[10px] text-on-surface-variant/40 mt-4 uppercase tracking-widest">
+          Menampilkan {filtered.length} emiten
+        </p>
+      )}
     </div>
   );
 }

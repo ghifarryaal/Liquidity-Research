@@ -29,7 +29,7 @@ export default function PanicMeterWidget({ panicMeter }) {
 
   return (
     <div
-      className="lg:col-span-4 rounded-2xl border p-5 flex flex-col gap-4 transition-all duration-500 h-[260px] relative overflow-hidden"
+      className="col-span-1 md:col-span-4 rounded-2xl border p-4 md:p-5 flex flex-col gap-3 md:gap-4 transition-all duration-500 h-[240px] sm:h-[260px] relative overflow-hidden"
       style={{ background: style.bg, borderColor: style.ring }}
     >
       {/* Header */}
