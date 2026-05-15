@@ -367,17 +367,6 @@ async def get_stock_detail(
         is_high_risk = (bb_width > 10.0) or (atr_pct > 4.0) or (vol_ratio > 3.0)
         is_dip = (rsi < 42) and (bb_pos < 0.35) and (ema20_gap < -1.0)
         
-        # DEBUG: Print momentum calculation
-        print(f"\n=== MEDC DEBUG ===")
-        print(f"Ticker: {ticker}")
-        print(f"RSI: {rsi}, MACD: {macd}, MACD_SIG: {macd_sig}")
-        print(f"EMA20_gap: {ema20_gap}, EMA50_gap: {ema50_gap}")
-        print(f"BB_pos: {bb_pos}, BB_width: {bb_width}")
-        print(f"ATR_pct: {atr_pct}, Vol_ratio: {vol_ratio}")
-        print(f"Momentum: {momentum}")
-        print(f"is_high_risk: {is_high_risk}, is_dip: {is_dip}")
-        print(f"=== END DEBUG ===\n")
-        
         # Determine label based on momentum and risk flags
         if momentum > 1.0:
             label = "Trending / Momentum"
@@ -403,13 +392,10 @@ async def get_stock_detail(
         from app.services.trade_plan_engine import calculate_trade_plan
         from app.services.backtest_engine import run_backtest
         
-        # Apply macro penalty to adjust label based on macro regime
-        macro_raw = await get_macro_score()
-        adjusted_label, macro_confidence, macro_suffix = apply_macro_penalty(label, macro_raw)
-        
-        strategy, reasoning = generate_reasoning(adjusted_label, ind, macro_suffix)
-        risk = calculate_risk_management(adjusted_label, price_info.get("current_price", 0.0), ind.get("atr"))
-        plan_raw = calculate_trade_plan(df, ind, adjusted_label, index_name="lq45")
+        # Generate reasoning and risk management based on label
+        strategy, reasoning = generate_reasoning(label, ind)
+        risk = calculate_risk_management(label, price_info.get("current_price", 0.0), ind.get("atr"))
+        plan_raw = calculate_trade_plan(df, ind, label, index_name="lq45")
         bt_raw = run_backtest(df)
 
         all_meta = {**LQ45_TICKER_META, **KOMPAS100_TICKER_META, **DBX_TICKER_META}
@@ -465,11 +451,11 @@ async def get_stock_detail(
             week_change_pct=week_change,
             month_change_pct=month_change,
             volume=vol,
-            cluster_label=adjusted_label,
-            cluster_color=CLUSTER_CONFIG.get(adjusted_label, {}).get("color", "#FFFFFF"),
+            cluster_label=label,
+            cluster_color=CLUSTER_CONFIG.get(label, {}).get("color", "#FFFFFF"),
             strategy=strategy,
             reasoning=reasoning,
-            confidence=macro_confidence,
+            confidence=0.85,
             take_profit=risk.get("take_profit"),
             stop_loss=risk.get("stop_loss"),
             trading_style=risk.get("trading_style", "Swing Trade"),
