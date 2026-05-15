@@ -331,7 +331,7 @@ async def get_stock_detail(
         rsi = ind.get("rsi", 50)
         macd = ind.get("macd")
         macd_sig = ind.get("macd_signal")
-        ema20_gap = ind.get("ema_20_gap_pct", 0)
+        ema20_gap = ind.get("ema20_gap_pct", 0)
         bb_pos = ind.get("bb_position", 0.5)
         bb_width = ind.get("bb_width", 0)
         atr_pct = ind.get("atr_pct", 0)
