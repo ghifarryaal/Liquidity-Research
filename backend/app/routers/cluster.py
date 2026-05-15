@@ -388,7 +388,7 @@ async def get_stock_detail(
             else:
                 label = "Hold / Sideways"
 
-        from app.services.clustering_engine import CLUSTER_CONFIG, generate_reasoning, calculate_risk_management
+        from app.services.clustering_engine import CLUSTER_CONFIG, generate_reasoning, calculate_risk_management, get_buy_hold_sell_signal
         from app.services.trade_plan_engine import calculate_trade_plan
         from app.services.backtest_engine import run_backtest
         
@@ -397,6 +397,9 @@ async def get_stock_detail(
         risk = calculate_risk_management(label, price_info.get("current_price", 0.0), ind.get("atr"))
         plan_raw = calculate_trade_plan(df, ind, label, index_name="lq45")
         bt_raw = run_backtest(df)
+        
+        # Get Buy/Hold/Sell signal
+        signal_data = get_buy_hold_sell_signal(label, raw_conf_score)
 
         all_meta = {**LQ45_TICKER_META, **KOMPAS100_TICKER_META, **DBX_TICKER_META}
         meta = all_meta.get(ticker, {"name": ticker, "sector": "Unknown"})
@@ -463,6 +466,9 @@ async def get_stock_detail(
             backtest=BacktestResult(**bt_raw) if bt_raw else None,
             confidence_score=raw_conf_score,
             is_high_conviction=is_high_conviction,
+            signal=signal_data.get("signal", "HOLD"),
+            signal_strength=signal_data.get("strength", "MODERATE"),
+            signal_recommendation=signal_data.get("recommendation", ""),
             indicators=indicators_obj
         )
     except HTTPException as he:

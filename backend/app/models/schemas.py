@@ -291,4 +291,9 @@ class StockDetailResponse(BaseModel):
     confidence_score: float = Field(0.5, ge=0.0, le=1.0)
     is_high_conviction: bool = False
     
+    # Buy/Hold/Sell Signal
+    signal: str = "HOLD"  # "STRONG BUY", "BUY", "HOLD", "SELL", "STRONG SELL"
+    signal_strength: str = "MODERATE"  # "STRONG", "MODERATE", "WEAK"
+    signal_recommendation: str = ""
+    
     indicators: TechnicalIndicators

@@ -435,3 +435,76 @@ def calculate_risk_management(
         "stop_loss":     round(float(sl), 2),
         "take_profit":   round(float(tp), 2),
     }
+
+
+def get_buy_hold_sell_signal(
+    label: str,
+    confidence_score: float,
+) -> dict:
+    """
+    Convert cluster label + XGBoost confidence to Buy/Hold/Sell signal.
+    
+    Args:
+        label: Cluster label ("Buy the Dip", "Trending / Momentum", etc)
+        confidence_score: XGBoost probability (0.0-1.0)
+    
+    Returns:
+        {
+            "signal": "STRONG BUY" | "BUY" | "HOLD" | "SELL" | "STRONG SELL",
+            "base_signal": "BUY" | "HOLD" | "SELL",
+            "strength": "STRONG" | "MODERATE" | "WEAK",
+            "confidence": float (0.0-1.0),
+            "recommendation": str (human-readable)
+        }
+    """
+    # ── 1. Base signal dari label ──────────────────────────────────────────
+    if label in ["Buy the Dip", "Trending / Momentum"]:
+        base_signal = "BUY"
+    elif label == "Hold / Sideways":
+        base_signal = "HOLD"
+    else:  # High Risk / Avoid
+        base_signal = "SELL"
+    
+    # ── 2. Strength dari XGBoost confidence ────────────────────────────────
+    if confidence_score > 0.75:
+        strength = "STRONG"
+    elif confidence_score > 0.60:
+        strength = "MODERATE"
+    else:
+        strength = "WEAK"
+    
+    # ── 3. Combine base signal + strength ──────────────────────────────────
+    if strength == "STRONG":
+        final_signal = f"STRONG {base_signal}"
+    elif strength == "WEAK":
+        # Downgrade weak signals
+        if base_signal == "SELL":
+            final_signal = "HOLD"  # Weak sell → hold
+        elif base_signal == "BUY":
+            final_signal = "HOLD"  # Weak buy → hold
+        else:
+            final_signal = "HOLD"
+    else:  # MODERATE
+        final_signal = base_signal
+    
+    # ── 4. Recommendation text ─────────────────────────────────────────────
+    confidence_pct = round(confidence_score * 100)
+    
+    if final_signal == "STRONG BUY":
+        recommendation = f"🟢 STRONG BUY - Confidence {confidence_pct}% | Akumulasi dengan posisi penuh"
+    elif final_signal == "BUY":
+        recommendation = f"🟢 BUY - Confidence {confidence_pct}% | Pertimbangkan entry bertahap"
+    elif final_signal == "HOLD":
+        recommendation = f"🟡 HOLD - Confidence {confidence_pct}% | Tunggu konfirmasi atau entry point lebih baik"
+    elif final_signal == "SELL":
+        recommendation = f"🔴 SELL - Confidence {confidence_pct}% | Pertimbangkan exit atau reduce posisi"
+    else:  # STRONG SELL
+        recommendation = f"🔴 STRONG SELL - Confidence {confidence_pct}% | Exit posisi atau hindari entry"
+    
+    return {
+        "signal": final_signal,
+        "base_signal": base_signal,
+        "strength": strength,
+        "confidence": round(confidence_score, 3),
+        "recommendation": recommendation,
+    }
