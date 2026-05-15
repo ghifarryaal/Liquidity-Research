@@ -452,38 +452,44 @@ async def get_stock_detail(
 
         logger.info(f"[{ticker}] About to return StockDetailResponse with signal={signal_data.get('signal')}")
 
-        return StockDetailResponse(
-            ticker=ticker,
-            name=meta.get("name", ticker),
-            sector=meta.get("sector", "Unknown"),
-            ohlcv=ohlcv_bars,
-            ema_20_series=series.get("ema_20", []),
-            ema_50_series=series.get("ema_50", []),
-            bb_upper_series=series.get("bb_upper", []),
-            bb_middle_series=series.get("bb_middle", []),
-            bb_lower_series=series.get("bb_lower", []),
-            current_price=current_price,
-            price_change_pct=price_change,
-            week_change_pct=week_change,
-            month_change_pct=month_change,
-            volume=vol,
-            cluster_label=label,
-            cluster_color=CLUSTER_CONFIG.get(label, {}).get("color", "#FFFFFF"),
-            strategy=strategy,
-            reasoning=reasoning,
-            confidence=0.85,
-            take_profit=risk.get("take_profit"),
-            stop_loss=risk.get("stop_loss"),
-            trading_style=risk.get("trading_style", "Swing Trade"),
-            trade_plan=TradePlan(**plan_raw) if plan_raw else None,
-            backtest=BacktestResult(**bt_raw) if bt_raw else None,
-            confidence_score=raw_conf_score,
-            is_high_conviction=is_high_conviction,
-            signal=signal_data.get("signal", "HOLD"),
-            signal_strength=signal_data.get("strength", "MODERATE"),
-            signal_recommendation=signal_data.get("recommendation", ""),
-            indicators=indicators_obj
-        )
+        try:
+            response = StockDetailResponse(
+                ticker=ticker,
+                name=meta.get("name", ticker),
+                sector=meta.get("sector", "Unknown"),
+                ohlcv=ohlcv_bars,
+                ema_20_series=series.get("ema_20", []),
+                ema_50_series=series.get("ema_50", []),
+                bb_upper_series=series.get("bb_upper", []),
+                bb_middle_series=series.get("bb_middle", []),
+                bb_lower_series=series.get("bb_lower", []),
+                current_price=current_price,
+                price_change_pct=price_change,
+                week_change_pct=week_change,
+                month_change_pct=month_change,
+                volume=vol,
+                cluster_label=label,
+                cluster_color=CLUSTER_CONFIG.get(label, {}).get("color", "#FFFFFF"),
+                strategy=strategy,
+                reasoning=reasoning,
+                confidence=0.85,
+                take_profit=risk.get("take_profit"),
+                stop_loss=risk.get("stop_loss"),
+                trading_style=risk.get("trading_style", "Swing Trade"),
+                trade_plan=TradePlan(**plan_raw) if plan_raw else None,
+                backtest=BacktestResult(**bt_raw) if bt_raw else None,
+                confidence_score=raw_conf_score,
+                is_high_conviction=is_high_conviction,
+                signal=signal_data.get("signal", "HOLD"),
+                signal_strength=signal_data.get("strength", "MODERATE"),
+                signal_recommendation=signal_data.get("recommendation", ""),
+                indicators=indicators_obj
+            )
+            logger.info(f"[{ticker}] Response created successfully with signal={response.signal}")
+            return response
+        except Exception as e:
+            logger.error(f"[{ticker}] Error creating StockDetailResponse: {e}", exc_info=True)
+            raise
     except HTTPException as he:
         raise he
     except Exception as e:
