@@ -155,7 +155,6 @@ class PanicMeter(BaseModel):
 
 
 class StockClusterResult(BaseModel):
-    model_config = ConfigDict(extra='ignore')
     ticker: str
     name: str = Field("", description="Company name")
     sector: str = Field("", description="GICS sector")
@@ -206,6 +205,11 @@ class StockClusterResult(BaseModel):
     take_profit: Optional[float] = Field(None, description="Recommended TP price")
     stop_loss: Optional[float] = Field(None, description="Recommended SL price")
     trading_style: str = Field("Swing Trade", description="Day Trade | Swing Trade | Investasi")
+
+    # Buy/Hold/Sell Signal
+    signal: str = "HOLD"  # "STRONG BUY", "BUY", "HOLD", "SELL", "STRONG SELL"
+    signal_strength: str = "MODERATE"  # "STRONG", "MODERATE", "WEAK"
+    signal_recommendation: str = ""
 
     # Dynamic Trade Plan
     trade_plan: Optional[TradePlan] = None

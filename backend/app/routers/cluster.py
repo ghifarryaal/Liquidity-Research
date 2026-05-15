@@ -201,6 +201,10 @@ async def get_cluster_analysis(
         raw_conf_score = confidence_scores.get(ticker, 0.5)
         is_high_conviction = raw_conf_score > 0.75
 
+        # ── Buy/Hold/Sell Signal ──────────────────────────────────────────
+        from app.services.clustering_engine import get_buy_hold_sell_signal
+        signal_data = get_buy_hold_sell_signal(adjusted_label, raw_conf_score)
+
         indicators = TechnicalIndicators(
             rsi=ind.get("rsi"),
             macd=ind.get("macd"),
@@ -237,6 +241,9 @@ async def get_cluster_analysis(
                 take_profit=risk["take_profit"],
                 stop_loss=risk["stop_loss"],
                 trading_style=risk["trading_style"],
+                signal=signal_data.get("signal", "HOLD"),
+                signal_strength=signal_data.get("strength", "MODERATE"),
+                signal_recommendation=signal_data.get("recommendation", ""),
                 trade_plan=trade_plan_obj,
                 backtest=bt_obj,
                 indicators=indicators,
