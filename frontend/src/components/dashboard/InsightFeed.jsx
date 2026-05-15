@@ -53,6 +53,43 @@ function ConfidenceMini({ score }) {
   );
 }
 
+function SignalBadge({ signal }) {
+  if (!signal) return <span className="text-[10px] text-on-surface-variant">—</span>;
+  
+  let bgColor, textColor, icon;
+  
+  if (signal.includes('STRONG BUY')) {
+    bgColor = 'rgba(0,255,178,0.2)';
+    textColor = '#00FFB2';
+    icon = '🟢';
+  } else if (signal.includes('BUY')) {
+    bgColor = 'rgba(0,255,178,0.15)';
+    textColor = '#00FFB2';
+    icon = '🟢';
+  } else if (signal.includes('HOLD')) {
+    bgColor = 'rgba(245,158,11,0.15)';
+    textColor = '#f59e0b';
+    icon = '🟡';
+  } else if (signal.includes('SELL')) {
+    bgColor = 'rgba(239,68,68,0.15)';
+    textColor = '#ef4444';
+    icon = '🔴';
+  } else {
+    bgColor = 'rgba(148,163,184,0.1)';
+    textColor = '#94a3b8';
+    icon = '⚪';
+  }
+  
+  return (
+    <span
+      className="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold border whitespace-nowrap"
+      style={{ background: bgColor, borderColor: textColor, color: textColor }}
+    >
+      {icon} {signal.replace('STRONG ', '')}
+    </span>
+  );
+}
+
 export default function InsightFeed({ stocks, isLoading, isError }) {
   const router = useRouter();
   const [activeFilter, setActiveFilter] = useState('all');
@@ -181,6 +218,7 @@ export default function InsightFeed({ stocks, isLoading, isError }) {
                 </th>
                 <th className="py-2.5 px-4 text-[11px] font-bold text-on-surface-variant uppercase tracking-wider text-right">5H %</th>
                 <th className="py-2.5 px-4 text-[11px] font-bold text-on-surface-variant uppercase tracking-wider text-right">30H %</th>
+                <th className="py-2.5 px-4 text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">Sinyal</th>
                 <th className="py-2.5 px-4 text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">Klaster AI</th>
                 <th className="py-2.5 px-4 text-[11px] font-bold text-on-surface-variant uppercase tracking-wider cursor-pointer hover:text-primary transition-colors" onClick={() => setSortBy('confidence')}>
                   <span className="flex items-center gap-1">
@@ -188,22 +226,23 @@ export default function InsightFeed({ stocks, isLoading, isError }) {
                     {sortBy === 'confidence' && <span className="material-symbols-outlined text-[13px] text-primary">arrow_downward</span>}
                   </span>
                 </th>
+                <th className="py-2.5 px-4 text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">Rekomendasi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant">
               {isLoading ? (
                 Array.from({ length: 8 }).map((_, i) => (
                   <tr key={i}>
-                    {Array.from({ length: 7 }).map((_, j) => (
+                    {Array.from({ length: 8 }).map((_, j) => (
                       <td key={j} className="py-3 px-4">
-                        <div className="h-3.5 bg-surface-container-high rounded animate-pulse" style={{ width: j === 0 ? '80px' : j === 5 ? '100px' : '56px' }} />
+                        <div className="h-3.5 bg-surface-container-high rounded animate-pulse" style={{ width: j === 0 ? '80px' : j === 6 ? '100px' : '56px' }} />
                       </td>
                     ))}
                   </tr>
                 ))
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-16 text-center">
+                  <td colSpan={8} className="py-16 text-center">
                     <div className="flex flex-col items-center gap-3">
                       <span className="material-symbols-outlined text-4xl text-on-surface-variant/40">search_off</span>
                       <p className="text-on-surface-variant text-sm">Tidak ada emiten yang sesuai filter</p>
@@ -239,6 +278,7 @@ export default function InsightFeed({ stocks, isLoading, isError }) {
                     </td>
                     <td className={`py-2.5 px-4 text-right font-data-mono text-sm font-bold ${changeClass(stock.week_change_pct)}`}>{formatPct(stock.week_change_pct)}</td>
                     <td className={`py-2.5 px-4 text-right font-data-mono text-sm font-bold ${changeClass(stock.month_change_pct)}`}>{formatPct(stock.month_change_pct)}</td>
+                    <td className="py-2.5 px-4"><SignalBadge signal={stock.signal} /></td>
                     <td className="py-2.5 px-4"><ClusterChip label={stock.cluster_label} /></td>
                     <td className="py-2.5 px-4"><ConfidenceMini score={stock.confidence} /></td>
                   </motion.tr>
@@ -287,8 +327,11 @@ export default function InsightFeed({ stocks, isLoading, isError }) {
                   <span className="font-data-mono text-xs text-on-surface">{formatPrice(stock.current_price)}</span>
                 </div>
               </div>
-              <div className="flex items-center justify-between">
-                <ClusterChip label={stock.cluster_label} />
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex flex-col gap-1 flex-1">
+                  <SignalBadge signal={stock.signal} />
+                  <ClusterChip label={stock.cluster_label} />
+                </div>
                 <ConfidenceMini score={stock.confidence} />
               </div>
             </motion.div>
