@@ -60,42 +60,62 @@ def build_stock_context(stock_data: Dict) -> str:
     trade_plan = stock_data.get("trade_plan", {})
     backtest = stock_data.get("backtest", {})
 
+    # Helper function to safely format numbers
+    def fmt_num(val, decimals=0):
+        if val is None or val == 'N/A':
+            return 'N/A'
+        try:
+            if decimals == 0:
+                return f"{float(val):,.0f}"
+            else:
+                return f"{float(val):,.{decimals}f}"
+        except (ValueError, TypeError):
+            return str(val)
+
+    def fmt_pct(val, decimals=2):
+        if val is None or val == 'N/A':
+            return 'N/A'
+        try:
+            return f"{float(val):+.{decimals}f}"
+        except (ValueError, TypeError):
+            return str(val)
+
     ctx = f"""
 === DATA SAHAM: {ticker} ({name}) ===
 
 KLASIFIKASI ML:
 - Cluster: {cluster}
-- Confidence: {confidence * 100:.0f}%
+- Confidence: {fmt_num(confidence * 100)}%
 - Trading Style: {trading_style}
 - AI Reasoning: {reasoning}
 
 HARGA:
-- Harga Saat Ini: Rp {current_price:,.0f}
-- Perubahan: {price_change:+.2f}%
+- Harga Saat Ini: Rp {fmt_num(current_price)}
+- Perubahan: {fmt_pct(price_change)}%
 
 INDIKATOR TEKNIKAL:
-- RSI (14): {indicators.get('rsi', 'N/A')}
-- MACD: {indicators.get('macd', 'N/A')}
-- MACD Signal: {indicators.get('macd_signal', 'N/A')}
-- Volume Ratio: {indicators.get('volume_ratio', 'N/A')}x
-- ATR (14): Rp {indicators.get('atr', 'N/A'):,.0f} (jika numerik)
-- EMA 20: Rp {indicators.get('ema_20', 'N/A'):,.0f} (jika numerik)
-- EMA 50: Rp {indicators.get('ema_50', 'N/A'):,.0f} (jika numerik)
-- BB Upper: Rp {indicators.get('bb_upper', 'N/A'):,.0f} (jika numerik)
-- BB Lower: Rp {indicators.get('bb_lower', 'N/A'):,.0f} (jika numerik)
+- RSI (14): {fmt_num(indicators.get('rsi'), 1)}
+- MACD: {fmt_num(indicators.get('macd'), 2)}
+- MACD Signal: {fmt_num(indicators.get('macd_signal'), 2)}
+- Volume Ratio: {fmt_num(indicators.get('volume_ratio'), 1)}x
+- ATR (14): Rp {fmt_num(indicators.get('atr'))}
+- EMA 20: Rp {fmt_num(indicators.get('ema_20'))}
+- EMA 50: Rp {fmt_num(indicators.get('ema_50'))}
+- BB Upper: Rp {fmt_num(indicators.get('bb_upper'))}
+- BB Lower: Rp {fmt_num(indicators.get('bb_lower'))}
 
 TRADE PLAN:
-- Entry: Rp {trade_plan.get('entry_price', 'N/A'):,.0f} (jika numerik)
-- Stop Loss: Rp {trade_plan.get('stop_loss', 'N/A'):,.0f} (jika numerik)
-- Take Profit 1: Rp {trade_plan.get('take_profit_1', 'N/A'):,.0f} (jika numerik)
-- Take Profit 2: Rp {trade_plan.get('take_profit_2', 'N/A'):,.0f} (jika numerik)
-- Risk/Reward: 1:{trade_plan.get('risk_reward_ratio', 'N/A')}
+- Entry: Rp {fmt_num(trade_plan.get('entry_price'))}
+- Stop Loss: Rp {fmt_num(trade_plan.get('stop_loss'))}
+- Take Profit 1: Rp {fmt_num(trade_plan.get('take_profit_1'))}
+- Take Profit 2: Rp {fmt_num(trade_plan.get('take_profit_2'))}
+- Risk/Reward: 1:{fmt_num(trade_plan.get('risk_reward_ratio'), 1)}
 
 BACKTEST (180 hari):
-- Win Rate: {backtest.get('win_rate', 'N/A')}%
-- Profit Factor: {backtest.get('profit_factor', 'N/A')}
-- Max Drawdown: {backtest.get('max_drawdown', 'N/A')}%
-- Total Return: {backtest.get('total_return', 'N/A')}%
+- Win Rate: {fmt_num(backtest.get('win_rate'), 1)}%
+- Profit Factor: {fmt_num(backtest.get('profit_factor'), 2)}
+- Max Drawdown: {fmt_pct(backtest.get('max_drawdown'), 1)}%
+- Total Return: {fmt_pct(backtest.get('total_return'), 1)}%
 """
     return ctx
 
