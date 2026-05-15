@@ -5,6 +5,7 @@ import CandlestickChart from '@/components/charts/CandlestickChart';
 import { formatPrice, formatPct, rsiLabel } from '@/lib/formatters';
 import TradePlanTable from '@/components/dashboard/TradePlanTable';
 import BacktestScorecard from '@/components/dashboard/BacktestScorecard';
+import SignalExplanation from '@/components/dashboard/SignalExplanation';
 import { useParams, useRouter } from 'next/navigation';
 import Disclaimer from '@/components/layout/Disclaimer';
 import { motion } from 'framer-motion';
@@ -225,6 +226,14 @@ export default function StockDetailClient() {
              )}
            </div>
         </section>
+
+        {/* 5b. Signal Explanation (Full Width) */}
+        <SignalExplanation
+          signal={stock.signal}
+          signalStrength={stock.signal_strength}
+          signalRecommendation={stock.signal_recommendation}
+          confidenceScore={stock.confidence_score}
+        />
 
         {/* 6. Backtest Scorecard (Full Width) */}
         <section className="bg-surface-container rounded-xl border border-outline-variant p-4 md:p-6 lg:p-8 shadow-md">
