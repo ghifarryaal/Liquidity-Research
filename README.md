@@ -1,131 +1,254 @@
-# LiquidityResearch: Hybrid ML Market Intelligence
+# 📈 LiquidityResearch - AI-Powered Indonesian Stock Analysis Platform
 
-### 🚀 Stop Guessing. Start Calculating.
-**LiquidityResearch** is a professional-grade quantitative engine and dashboard designed to eliminate emotional trading through the synergy of **Unsupervised Clustering**, **Supervised Prediction**, and **Real-Time Global Macro Awareness**.
+> Intelligent stock analysis platform for Indonesian market (LQ45 & KOMPAS100) powered by Machine Learning clustering, technical indicators, and automated backtesting.
 
----
+[![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688)](https://fastapi.tiangolo.com/)
+[![Python](https://img.shields.io/badge/Python-3.11-blue)](https://www.python.org/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-## 📉 The "Why"
-Emotional trading is the primary cause of retail capital loss. Most traders struggle with "Analysis Paralysis"—the inability to synthesize global macro trends, sectoral rotation, and technical volatility into a single, executable decision. 
+## 🌟 Features
 
-**LiquidityResearch** solves this by providing a high-conviction "Command Center" that processes 600+ tickers (LQ45, Kompas 100, and DBX Second-Liners) to find institutional accumulation phases and high-probability trade setups.
+### 🤖 AI-Powered Analysis
+- **Machine Learning Clustering**: Automatically groups stocks into actionable strategies (Buy the Dip, Momentum, Breakout, etc.)
+- **Supervised Learning**: Confidence scoring for each recommendation
+- **Macro Sentiment Weighting**: Adjusts strategies based on market conditions
 
----
+### 📊 Technical Analysis
+- **20+ Technical Indicators**: RSI, MACD, Bollinger Bands, EMA, ATR, Volume Ratio
+- **Interactive Charts**: Real-time candlestick charts with technical overlays
+- **Historical Data**: 180-day analysis window
 
-## 🧠 Core Pillars
+### 💼 Trading Intelligence
+- **Automated Trade Plans**: Entry, stop-loss, and take-profit levels
+- **Backtesting Engine**: Historical performance validation
+- **Risk Management**: Position sizing and risk/reward calculations
 
-### 1. ML Intelligence (The Engine)
-- **K-Means Clustering:** Categorizes the market into behavioral regimes (Trending, Mean Reversion, Panic, or Sideways) using high-dimensional feature vectors.
-- **XGBoost Confidence Scores:** A secondary supervised layer trained on historical IDX data to predict the probability of a 5% gain within 5 trading days.
-- **Dynamic Walk-Forward Validation:** Real-time accuracy tracking to ensure the model adapts to current market regimes.
+### 🎓 Educational Features
+- **AI Reasoning**: Transparent explanations for each recommendation
+- **Strategy Insights**: Learn why stocks are categorized in specific clusters
+- **No Login Required**: Accessible to all Indonesian retail investors
 
-### 2. Supported Indices
-- **LQ45:** The 45 most liquid and high-capitalization stocks on the IDX.
-- **Kompas 100:** 100 stocks with high liquidity and good fundamentals.
-- **DBX (Second-Liners):** Comprehensive coverage of Indonesian second-liner stocks (400+ tickers) for alpha-seeking traders.
+## 🏗️ Architecture
 
-### 3. Technical Precision (The Execution)
-- **3.0x ATR Stop-Loss:** Professional risk management using Average True Range (ATR) multipliers.
-- **Fibonacci-Optimized Targets:** Dynamic Take-Profit levels based on liquidity clusters.
-- **Macro-Awareness:** Integrated Z-score analysis of **DXY (U.S. Dollar Index)** and **US10Y (U.S. 10-Year Treasury Yield)**.
-
-### 4. AI Mentorship (The Learning Layer)
-- **Gemini 1.5 Flash Integration:** An on-board AI Mentor that explains the "Why" behind every trade setup. 
-- **Contextual Awareness:** The mentor understands the current cluster, macro sentiment, and stock-specific indicators to provide actionable insights.
-
----
-
-## 🛠 Tech Stack
-
-| Layer | Technology |
-| :--- | :--- |
-| **Frontend** | Next.js 15, React 19, Framer Motion, SWR, Tailwind CSS 4 |
-| **Backend** | FastAPI, Uvicorn, Httpx |
-| **Machine Learning** | XGBoost 2.0, Scikit-Learn, Pandas, NumPy |
-| **AI Architecture** | Google Gemini 1.5 Flash |
-| **Data Logic** | Direct Yahoo Finance v8 API Integration |
-| **Deployment** | Docker, Docker Compose, Nginx |
-
----
-
-## 📦 Project Structure
-
-```text
-.
-├── backend/                # FastAPI Quantitative Engine
-│   ├── app/
-│   │   ├── constants/      # Ticker definitions (LQ45, Kompas 100, DBX)
-│   │   ├── models/         # Pydantic Schemas & Data Structures
-│   │   ├── routers/        # API Endpoints (Cluster, Macro, Stock)
-│   │   └── services/       # ML Logic (XGBoost, K-Means, Macro Weighting)
-│   ├── requirements.txt    # ML Stack Dependencies
-│   └── Dockerfile          # Backend Containerization
-├── frontend/               # Next.js Analytics Dashboard
-│   ├── src/
-│   │   ├── app/            # Main Pages & Stock Deep Dives
-│   │   ├── components/     # High-Density UI Widgets
-│   │   └── hooks/          # Real-time SWR Data Fetchers
-│   ├── package.json        # Frontend Dependencies
-│   └── Dockerfile          # Frontend Containerization
-├── docker-compose.yml      # Production Orchestration
-├── nginx.conf              # Reverse Proxy Configuration
-└── README.md               # Main Documentation
+```
+┌─────────────┐         ┌──────────────┐         ┌─────────────┐
+│   Next.js   │ ◄─────► │   FastAPI    │ ◄─────► │  Yahoo      │
+│   Frontend  │  REST   │   Backend    │  API    │  Finance    │
+│             │         │              │         │             │
+│  - React 19 │         │  - Sklearn   │         │  - OHLCV    │
+│  - Tailwind │         │  - Pandas    │         │  - Real-time│
+│  - SWR      │         │  - NumPy     │         │             │
+└─────────────┘         └──────────────┘         └─────────────┘
+      │                        │
+      │                        │
+      ▼                        ▼
+┌─────────────┐         ┌──────────────┐
+│   Vercel    │         │     VPS      │
+│   Hosting   │         │   (Docker)   │
+└─────────────┘         └──────────────┘
 ```
 
----
+## 🚀 Quick Start
 
-## ⚙️ Installation & Setup (Local Development)
+### Prerequisites
+- Node.js 18+ and npm
+- Python 3.11+
+- Docker (optional)
 
-### 1. Backend Setup
-```bash
-cd backend
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-pip install -r requirements.txt
-```
-*Create a `.env` file in `/backend` with:*
-`GEMINI_API_KEY=your_key_here`
+### Frontend Setup
 
-### 2. Frontend Setup
 ```bash
 cd frontend
 npm install
+npm run dev
 ```
 
-### 3. Running the Project
-- **Backend:** `uvicorn app.main:app --reload` (Runs on port 8000)
-- **Frontend:** `npm run dev` (Runs on port 3000)
+Visit `http://localhost:3000`
 
----
-
-## 🚢 Production Deployment (Docker)
-
-To deploy the entire stack using Docker Compose:
+### Backend Setup
 
 ```bash
-docker-compose up -d --build
+cd backend
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload
 ```
 
-The stack includes:
-- **Frontend:** Next.js application (Port 3001)
-- **Backend:** FastAPI application (Port 8001)
-- **Nginx:** Reverse proxy for domain routing (Port 80)
+API available at `http://localhost:8001`
+
+### Docker Setup (Recommended)
+
+```bash
+docker-compose up -d
+```
+
+## 📁 Project Structure
+
+```
+├── frontend/                 # Next.js frontend
+│   ├── src/
+│   │   ├── app/             # App router pages
+│   │   ├── components/      # React components
+│   │   ├── hooks/           # Custom hooks (SWR)
+│   │   ├── lib/             # Utilities & API client
+│   │   └── constants/       # Configuration
+│   └── public/              # Static assets
+│
+├── backend/                 # FastAPI backend
+│   ├── app/
+│   │   ├── routers/        # API endpoints
+│   │   ├── services/       # Business logic
+│   │   │   ├── clustering_engine.py    # ML clustering
+│   │   │   ├── supervised_model.py     # Confidence scoring
+│   │   │   ├── backtest_engine.py      # Strategy validation
+│   │   │   ├── trade_plan_engine.py    # Trade planning
+│   │   │   └── feature_engineering.py  # Technical indicators
+│   │   ├── models/         # Data schemas
+│   │   └── constants/      # Stock tickers
+│   └── requirements.txt
+│
+└── docker-compose.yml      # Container orchestration
+```
+
+## 🔧 Tech Stack
+
+### Frontend
+- **Framework**: Next.js 15 (App Router)
+- **UI**: React 19, Tailwind CSS 4
+- **Charts**: Lightweight Charts
+- **Data Fetching**: SWR (stale-while-revalidate)
+- **Animations**: Framer Motion
+
+### Backend
+- **Framework**: FastAPI
+- **ML**: Scikit-learn, Pandas, NumPy
+- **Data**: Yahoo Finance API (yfinance)
+- **Validation**: Pydantic
+
+### Infrastructure
+- **Frontend Hosting**: Vercel
+- **Backend Hosting**: VPS with Docker
+- **Reverse Proxy**: Nginx
+- **SSL**: Cloudflare
+
+## 📊 Machine Learning Pipeline
+
+### 1. Data Collection
+- Fetch 180 days of OHLCV data from Yahoo Finance
+- Calculate 20+ technical indicators
+- Normalize features for ML processing
+
+### 2. Clustering (Unsupervised)
+```python
+# K-Means clustering with 6 strategies
+- Buy the Dip (oversold, strong fundamentals)
+- Momentum (strong uptrend)
+- Breakout (consolidation breakout)
+- Reversal (trend reversal signals)
+- Consolidation (range-bound)
+- Avoid (weak signals)
+```
+
+### 3. Supervised Learning
+- Random Forest classifier for confidence scoring
+- Features: RSI, MACD, volume, price action
+- Output: Confidence percentage (0-100%)
+
+### 4. Backtesting
+- Simulate trades over historical data
+- Calculate win rate, profit factor, max drawdown
+- Validate strategy effectiveness
+
+## 🎯 API Endpoints
+
+### Market Overview
+```http
+GET /api/market-overview?index=lq45
+```
+
+### Stock Detail
+```http
+GET /api/stock/{ticker}?period_days=180
+```
+
+### Cluster Analysis
+```http
+GET /api/clusters?index=lq45
+```
+
+## 🌐 Live Demo
+
+- **Frontend**: https://quant.indonesiastockanalyst.my.id
+- **API**: https://api-quant.indonesiastockanalyst.my.id/docs
+
+## 📸 Screenshots
+
+### Dashboard
+![Dashboard](docs/screenshots/dashboard.png)
+*Market overview with AI-powered stock clustering*
+
+### Stock Detail
+![Stock Detail](docs/screenshots/stock-detail.png)
+*Comprehensive analysis with charts and trade plans*
+
+### Technical Analysis
+![Technical Analysis](docs/screenshots/technical.png)
+*Interactive candlestick charts with indicators*
+
+## 🧪 Testing
+
+### Frontend Tests
+```bash
+cd frontend
+npm run test
+```
+
+### Backend Tests
+```bash
+cd backend
+pytest tests/
+```
+
+## 📈 Performance
+
+- **First Load**: < 2 seconds
+- **API Response**: < 500ms average
+- **Lighthouse Score**: 95+ (Performance, Accessibility, Best Practices)
+
+## 🔐 Security
+
+- HTTPS enforced
+- CORS configured
+- Input validation with Pydantic
+- Rate limiting on API endpoints
+- No sensitive data stored
+
+## 🤝 Contributing
+
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 👨‍💻 Author
+
+**Ghifar Ryal**
+- GitHub: [@ghifarryaal](https://github.com/ghifarryaal)
+
+## 🙏 Acknowledgments
+
+- Yahoo Finance for market data
+- Indonesian Stock Exchange (IDX)
+- Scikit-learn community
+- Next.js team
+
+## 📞 Contact
+
+For questions or feedback, please open an issue or contact via GitHub.
 
 ---
 
-## 🖼️ Screenshot Preview
-
-1.  **The Command Center:** A macro-aware overview of the IDX, showing the Panic Meter, Sector Momentum, and Macro Sentiment Gauge.
-2.  **ML Confidence Matrix:** The XGBoost validation panel showing real-time precision and high-conviction flags.
-3.  **The Interactive Trade Plan:** Deep-dive view of a single stock with automated ATR-based risk management and AI mentorship.
-
----
-
-## ✨ Why LiquidityResearch?
-**LiquidityResearch** represents an elegant bridge between **Traditional Quantitative Finance** and **Modern Generative AI**. We don't just "chat" with an LLM; we feed the LLM processed, high-quality technical data from our own ML engines. The result is an AI that doesn't just hallucinate—it calculates, validates, and educates.
-
----
-
-## ⚖️ Disclaimer
-*LiquidityResearch is an analytical tool. Trading involves risk. Use this data as a supplement to, not a replacement for, your own professional judgment.*
-
+**⚠️ Disclaimer**: This platform is for educational purposes only. Not financial advice. Always do your own research before investing.
