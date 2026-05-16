@@ -119,26 +119,26 @@ export default function CandlestickChartInner({ ohlcv, ema20, ema50, bbUpper, bb
         const LineStyle = LWC.LineStyle ?? { Dashed: 1, Dotted: 2 };
 
         addLine(ema20, {
-          color: '#06b6d4', lineWidth: 1.5, title: 'EMA20',
+          color: '#06b6d4', lineWidth: 1.5,
           priceLineVisible: false, lastValueVisible: false,
         });
         addLine(ema50, {
-          color: '#a855f7', lineWidth: 1.5, title: 'EMA50',
+          color: '#a855f7', lineWidth: 1.5,
           priceLineVisible: false, lastValueVisible: false,
         });
         addLine(bbUpper, {
           color: 'rgba(245,158,11,0.7)', lineWidth: 1,
-          lineStyle: LineStyle.Dashed, title: 'BB Upper',
+          lineStyle: LineStyle.Dashed,
           priceLineVisible: false, lastValueVisible: false,
         });
         addLine(bbMiddle, {
           color: 'rgba(245,158,11,0.35)', lineWidth: 1,
-          lineStyle: LineStyle.Dotted, title: 'BB Mid',
+          lineStyle: LineStyle.Dotted,
           priceLineVisible: false, lastValueVisible: false,
         });
         addLine(bbLower, {
           color: 'rgba(245,158,11,0.7)', lineWidth: 1,
-          lineStyle: LineStyle.Dashed, title: 'BB Lower',
+          lineStyle: LineStyle.Dashed,
           priceLineVisible: false, lastValueVisible: false,
         });
 

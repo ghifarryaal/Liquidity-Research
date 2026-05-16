@@ -72,12 +72,12 @@ def calculate_trade_plan(
 
         # Default TP calculations
         tp1_raw = swing_low + (0.618 * diff)
-        tp2_raw = swing_low + (1.618 * diff)
+        tp2_raw = swing_low + (1.0 * diff)
         
         # If price is already above swing high, adjust Fibonacci for extension
         if price > swing_high:
             tp1_raw = swing_high + (0.618 * (price - swing_low))
-            tp2_raw = swing_high + (1.618 * (price - swing_low))
+            tp2_raw = swing_high + (1.0 * (price - swing_low))
 
         # ── 2. Volatility-Based Stop Loss (ATR) ───────────────────────────
         atr = indicators.get("atr")
@@ -146,6 +146,8 @@ def calculate_trade_plan(
         logic_text = (
             f"Analisis Teknikal: TP1 di {format_price_no_sym(tp1)} "
             f"({'RR 1:3' if is_dbx else 'Fibo 0.618'}) — area target profit. "
+            f"TP2 di {format_price_no_sym(tp2)} "
+            f"({'RR 1:5' if is_dbx else 'Fibo 1.0'}) — target ekstensi. "
             f"SL di {format_price_no_sym(sl)} ({atr_multiplier}x ATR) dibulatkan ke fraksi {fraction}."
         )
 
