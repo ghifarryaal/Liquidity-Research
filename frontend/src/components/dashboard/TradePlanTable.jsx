@@ -152,7 +152,7 @@ export default function TradePlanTable({ plan, ticker, confidenceScore, isHighCo
                 <td className="py-3 px-3 text-on-surface">{plan.entry_range}</td>
                 <td className="py-3 px-3 text-semantic-bearish font-bold">{formatPrice(plan.stop_loss)}</td>
                 <td className="py-3 px-3 text-semantic-bullish font-bold">{formatPrice(plan.take_profit_1)}</td>
-                <td className="py-3 px-3 text-semantic-bullish">{formatPrice(plan.take_profit_2)}</td>
+                <td className="py-3 px-3 text-semantic-bullish font-bold">{formatPrice(plan.take_profit_2)}</td>
                 <td className="py-3 px-3 text-on-surface text-right">{plan.rr_ratio}</td>
               </tr>
             </tbody>
