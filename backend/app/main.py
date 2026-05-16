@@ -8,6 +8,7 @@ import traceback
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -55,6 +56,14 @@ app.add_middleware(
 app.include_router(cluster.router, prefix="/api", tags=["Clustering"])
 app.include_router(chat.router, prefix="/api", tags=["AI Mentor"])
 app.include_router(ai_assistant.router, tags=["AI Assistant"])
+
+# ---------------------------------------------------------------------------
+# Static files — backtest charts
+# ---------------------------------------------------------------------------
+
+_static_backtests_dir = os.path.join(os.path.dirname(__file__), "..", "static", "backtests")
+os.makedirs(_static_backtests_dir, exist_ok=True)
+app.mount("/static/backtests", StaticFiles(directory=_static_backtests_dir), name="backtests")
 
 # ---------------------------------------------------------------------------
 # Health check

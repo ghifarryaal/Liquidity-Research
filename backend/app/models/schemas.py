@@ -120,6 +120,45 @@ class TradePlan(BaseModel):
 
 
 # ---------------------------------------------------------------------------
+# Training Window Metadata
+# ---------------------------------------------------------------------------
+
+
+class TrainingWindowInfo(BaseModel):
+    """Metadata about the K-Means training window."""
+    start_date: str = ""
+    end_date: str = ""
+    trading_days: int = 0
+    missing_values_pct: float = 0.0
+    tickers_processed: int = 0
+    tickers_failed: list[str] = Field(default_factory=list)
+
+
+# ---------------------------------------------------------------------------
+# Enhanced Backtest Result (full trade log + equity curve)
+# ---------------------------------------------------------------------------
+
+
+class EnhancedBacktestResult(BaseModel):
+    """Full backtest result with trade log and equity curve."""
+    model_config = ConfigDict(extra='ignore')
+    ticker: str = ""
+    start_date: str = ""
+    end_date: str = ""
+    initial_capital: float = 100_000_000.0
+    final_equity: float = 100_000_000.0
+    cumulative_returns: float = 0.0
+    sharpe_ratio: float = 0.0
+    maximum_drawdown: float = 0.0
+    total_trades: int = 0
+    winning_trades: int = 0
+    win_rate: float = 0.0
+    trades: list[dict] = Field(default_factory=list)
+    equity_curve: list[dict] = Field(default_factory=list)
+    chart_url: Optional[str] = None
+
+
+# ---------------------------------------------------------------------------
 # Backtest Scorecard
 # ---------------------------------------------------------------------------
 
@@ -133,6 +172,9 @@ class BacktestResult(BaseModel):
     max_drawdown_pct: float = Field(0.0, description="Worst single trade %")
     best_trade_pct: float = Field(0.0, description="Best single trade %")
     worst_trade_pct: float = Field(0.0, description="Worst single trade %")
+    cumulative_returns: float = Field(0.0, description="Total return as decimal")
+    sharpe_ratio: float = Field(0.0, description="Annualized Sharpe ratio")
+    maximum_drawdown: float = Field(0.0, description="Max drawdown as decimal")
 
 
 # ---------------------------------------------------------------------------
@@ -239,6 +281,7 @@ class ClusterResponse(BaseModel):
     macro_sentiment: Optional[MacroSentimentDetail] = None
     supervised_validation: Optional[SupervisedValidation] = None
     panic_meter: Optional[PanicMeter] = None
+    training_window: Optional[TrainingWindowInfo] = None
     stocks: list[StockClusterResult]
 
 

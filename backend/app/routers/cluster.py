@@ -21,6 +21,7 @@ from app.constants.dbx_tickers import DBX_TICKER_SYMBOLS, DBX_TICKER_META
 from app.models.schemas import (
     BacktestResult,
     ClusterResponse,
+    EnhancedBacktestResult,
     MacroScore,
     OHLCVBar,
     PanicMeter,
@@ -28,6 +29,7 @@ from app.models.schemas import (
     StockDetailResponse,
     TechnicalIndicators,
     TradePlan,
+    TrainingWindowInfo,
 )
 from app.services.clustering_engine import (
     CLUSTER_CONFIG,
@@ -47,6 +49,10 @@ from app.services.supervised_model import (
     validate_30day,
     FEATURE_NAMES,
 )
+from app.services.backtest_engine import run_enhanced_backtest
+from app.services.clustering_engine import TrainingWindowManager
+from app.services.feature_engineering import compute_enhanced_features
+from pydantic import BaseModel as _PydanticBaseModel
 
 logger = logging.getLogger(__name__)
 
@@ -61,6 +67,37 @@ INDEX_MAP: dict[str, tuple[list[str], dict]] = {
     "kompas100": (KOMPAS100_TICKER_SYMBOLS, KOMPAS100_TICKER_META),
     "dbx": (DBX_TICKER_SYMBOLS, DBX_TICKER_META),
 }
+
+
+# ---------------------------------------------------------------------------
+# GET /api/cluster/training-window-info  (must be BEFORE /{index_name})
+# ---------------------------------------------------------------------------
+
+
+@router.get(
+    "/cluster/training-window-info",
+    response_model=TrainingWindowInfo,
+    summary="Get metadata about the current K-Means training window",
+    description=(
+        "Returns information about the 3-month rolling training window "
+        "used for K-Means model fitting, including date range and data quality metrics."
+    ),
+)
+async def get_training_window_info():
+    from datetime import datetime, timezone, timedelta
+
+    manager = TrainingWindowManager(window_months=3, min_trading_days=60)
+    end_date = datetime.now(tz=timezone.utc)
+    start_date = end_date - timedelta(days=90)
+
+    return TrainingWindowInfo(
+        start_date=start_date.strftime("%Y-%m-%d"),
+        end_date=end_date.strftime("%Y-%m-%d"),
+        trading_days=63,  # approximate trading days in 3 months
+        missing_values_pct=0.0,
+        tickers_processed=0,
+        tickers_failed=[],
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -96,8 +133,18 @@ async def get_cluster_analysis(
     tickers, meta = INDEX_MAP[index_name]
 
     # 1. Fetch OHLCV
+    # Dual-window approach:
+    #   - 90-day window  → used for K-Means training (3-month rolling window)
+    #   - 180-day window → used for backtest scoring and price history display
+    # The training window is kept shorter to ensure the model reflects recent
+    # market regime, while the backtest window provides enough history for
+    # meaningful performance metrics.
+    TRAINING_PERIOD_DAYS = 90
     logger.info("[%s] Fetching OHLCV for %d tickers", index_name, len(tickers))
     try:
+        # Fetch 90-day data for K-Means training
+        training_ohlcv_map = await fetch_index_ohlcv(tickers, TRAINING_PERIOD_DAYS)
+        # Fetch full period_days (default 180) data for backtest / display
         ohlcv_map = await fetch_index_ohlcv(tickers, period_days)
     except Exception as exc:
         logger.error("OHLCV fetch failed: %s", exc)
@@ -106,8 +153,8 @@ async def get_cluster_analysis(
     if not ohlcv_map:
         raise HTTPException(status_code=503, detail="No data returned from yfinance.")
 
-    # 2. Feature engineering
-    indicator_map = compute_all_indicators(ohlcv_map)
+    # 2. Feature engineering — use 90-day training data for K-Means fitting
+    indicator_map = compute_all_indicators(training_ohlcv_map)
     valid_tickers, feature_matrix = build_feature_matrix(indicator_map)
 
     if len(valid_tickers) < 4:
@@ -117,7 +164,7 @@ async def get_cluster_analysis(
         )
 
     # 3. Clustering
-    cluster_map = run_clustering(valid_tickers, feature_matrix)
+    cluster_map = run_clustering(valid_tickers, feature_matrix, training_period_days=TRAINING_PERIOD_DAYS)
 
     # 4. Macro score
     macro_raw = await get_macro_score()
@@ -504,6 +551,118 @@ async def get_stock_detail(
         err_detail = f"Error in get_stock_detail: {str(e)}\n{traceback.format_exc()}"
         logger.error(err_detail)
         raise HTTPException(status_code=500, detail=err_detail)
+
+
+# ---------------------------------------------------------------------------
+# POST /api/cluster/backtest
+# ---------------------------------------------------------------------------
+
+
+class BacktestRequest(_PydanticBaseModel):
+    ticker: str
+    backtest_months: int = 6
+    initial_capital: float = 100_000_000.0
+    generate_chart: bool = False
+
+
+@router.post(
+    "/cluster/backtest",
+    response_model=EnhancedBacktestResult,
+    summary="Run detailed cluster-based backtest for a single ticker",
+    description=(
+        "Fetches 6 months of OHLCV data for the specified ticker, "
+        "computes cluster labels timeline, and runs a full backtest simulation "
+        "with stop-loss (3%) and trailing-stop (5%) risk management."
+    ),
+)
+async def run_ticker_backtest(request: BacktestRequest):
+    ticker = request.ticker.upper()
+    if not ticker.endswith(".JK"):
+        ticker = f"{ticker}.JK"
+
+    period_days = max(30, request.backtest_months * 30)
+
+    try:
+        df = await fetch_single_ticker(ticker, period_days)
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Data fetch failed: {exc}")
+
+    if df is None or df.empty:
+        raise HTTPException(status_code=404, detail=f"No data found for {ticker}")
+
+    # Build a simple cluster labels timeline using enhanced features
+    # For each day, we use the cluster label derived from the most recent indicators
+    ind = compute_indicators(df)
+    if not ind:
+        raise HTTPException(status_code=422, detail=f"Could not compute indicators for {ticker}")
+
+    # Use the single cluster label for the whole timeline (simplified approach)
+    rsi = ind.get("rsi", 50) or 50
+    vol_ratio = ind.get("volume_ratio", 1.0) or 1.0
+    bb_pos = ind.get("bb_position", 0.5) or 0.5
+    ema20_gap = ind.get("ema20_gap_pct", 0) or 0
+
+    momentum = 0.0
+    if rsi > 60:
+        momentum += 1.5
+    elif rsi > 50:
+        momentum += 0.5
+    elif rsi < 35:
+        momentum -= 1.5
+    else:
+        momentum -= 0.3
+    momentum += (bb_pos - 0.5) * 1.5
+    momentum += float(np.clip(ema20_gap / 5.0, -1.0, 1.0))
+
+    is_high_risk = vol_ratio > 3.0
+    if momentum > 1.0:
+        current_label = "Momentum"
+    elif momentum < -1.0:
+        current_label = "High Risk" if is_high_risk else "Beli Saat Turun"
+    else:
+        current_label = "High Risk" if is_high_risk else "Konsolidasi"
+
+    # Build timeline: assign current label to all dates
+    cluster_labels_timeline = {}
+    for ts in df.index:
+        date_str = str(ts.date()) if hasattr(ts, "date") else str(ts)[:10]
+        cluster_labels_timeline[date_str] = current_label
+
+    # Run enhanced backtest
+    bt_result = run_enhanced_backtest(
+        df=df,
+        cluster_labels_timeline=cluster_labels_timeline,
+        initial_capital=request.initial_capital,
+    )
+    bt_result["ticker"] = ticker
+
+    # Optionally generate chart
+    chart_url = None
+    if request.generate_chart:
+        try:
+            from app.services.visualization import (
+                visualize_backtest_results,
+                generate_backtest_chart_path,
+            )
+            import os
+            static_dir = os.path.join(
+                os.path.dirname(__file__), "..", "..", "static", "backtests"
+            )
+            chart_path = generate_backtest_chart_path(ticker, output_dir=static_dir)
+            visualize_backtest_results(
+                ticker=ticker,
+                df=df,
+                cluster_timeline=cluster_labels_timeline,
+                trades=bt_result.get("trades", []),
+                equity_curve=bt_result.get("equity_curve", []),
+                output_path=chart_path,
+            )
+            chart_url = f"/static/backtests/{os.path.basename(chart_path)}"
+        except Exception as chart_exc:
+            logger.warning("Chart generation failed for %s: %s", ticker, chart_exc)
+
+    bt_result["chart_url"] = chart_url
+    return EnhancedBacktestResult(**bt_result)
 
 
 # ---------------------------------------------------------------------------

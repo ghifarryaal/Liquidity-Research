@@ -24,6 +24,7 @@ import logging
 from typing import Optional
 
 import numpy as np
+import pandas as pd
 from sklearn.cluster import KMeans
 from sklearn.metrics import (
     calinski_harabasz_score,
@@ -42,6 +43,7 @@ N_CLUSTERS   = 4
 RANDOM_STATE = 42
 
 CLUSTER_CONFIG: dict[str, dict] = {
+    # ── Original labels (kept for backward compatibility) ─────────────────
     "Buy the Dip": {
         "color":             "#00FFB2",
         "icon":              "📉",
@@ -62,7 +64,105 @@ CLUSTER_CONFIG: dict[str, dict] = {
         "icon":              "⚠️",
         "short_strategy_id": "avoid",
     },
+    # ── New Indonesian label aliases ──────────────────────────────────────
+    # "Beli Saat Turun" is the Indonesian alias for "Buy the Dip"
+    "Beli Saat Turun": {
+        "color":             "#00FFB2",
+        "icon":              "📉",
+        "short_strategy_id": "buy_dip",
+    },
+    # "Konsolidasi" is the Indonesian alias for "Hold / Sideways"
+    "Konsolidasi": {
+        "color":             "#F59E0B",
+        "icon":              "⏸️",
+        "short_strategy_id": "hold",
+    },
+    # "Momentum" is the short alias for "Trending / Momentum"
+    "Momentum": {
+        "color":             "#3B82F6",
+        "icon":              "🚀",
+        "short_strategy_id": "momentum",
+    },
+    # "High Risk" is the short alias for "High Risk / Avoid"
+    "High Risk": {
+        "color":             "#EF4444",
+        "icon":              "⚠️",
+        "short_strategy_id": "avoid",
+    },
 }
+
+
+# ---------------------------------------------------------------------------
+# Training Window Manager
+# ---------------------------------------------------------------------------
+
+
+class TrainingWindowManager:
+    """
+    Manages the rolling training window for K-Means model fitting.
+
+    Ensures each ticker has sufficient trading days and provides metadata
+    about the training window (date range, missing value percentage, etc.).
+    """
+
+    def __init__(self, window_months: int = 3, min_trading_days: int = 60) -> None:
+        self.window_months = window_months
+        self.min_trading_days = min_trading_days
+
+    def validate_window(self, df: pd.DataFrame) -> bool:
+        """
+        Validate that the DataFrame has sufficient trading days.
+
+        Args:
+            df: OHLCV DataFrame
+
+        Returns:
+            True if len(df) >= min_trading_days (60), False otherwise.
+        """
+        return len(df) >= self.min_trading_days
+
+    def get_training_metadata(self, df: pd.DataFrame) -> dict:
+        """
+        Return metadata about the training window.
+
+        Args:
+            df: OHLCV DataFrame
+
+        Returns:
+            {
+                "start_date": str (ISO),
+                "end_date": str (ISO),
+                "trading_days": int,
+                "missing_values_pct": float,
+            }
+
+        Raises:
+            ValueError: If the DataFrame has fewer than min_trading_days rows.
+        """
+        if not self.validate_window(df):
+            raise ValueError("Insufficient training data")
+
+        trading_days = len(df)
+        total_cells = df.size
+        missing_cells = int(df.isna().sum().sum())
+        missing_pct = (missing_cells / total_cells * 100) if total_cells > 0 else 0.0
+
+        if missing_pct > 10.0:
+            logger.warning(
+                "Training window has %.1f%% missing values (threshold: 10%%). "
+                "Consider fetching more data or using forward-fill.",
+                missing_pct,
+            )
+
+        start_date = str(df.index[0].date()) if hasattr(df.index[0], "date") else str(df.index[0])
+        end_date = str(df.index[-1].date()) if hasattr(df.index[-1], "date") else str(df.index[-1])
+
+        return {
+            "start_date": start_date,
+            "end_date": end_date,
+            "trading_days": trading_days,
+            "missing_values_pct": round(missing_pct, 2),
+        }
 
 
 # ---------------------------------------------------------------------------
@@ -73,9 +173,18 @@ CLUSTER_CONFIG: dict[str, dict] = {
 def run_clustering(
     tickers: list[str],
     feature_matrix: np.ndarray,
+    training_period_days: int = 90,
 ) -> dict[str, dict]:
     """
     Run K-Means on the feature matrix (aligned with reference clustering.py).
+
+    Args:
+        tickers: List of ticker symbols corresponding to rows in feature_matrix.
+        feature_matrix: 2-D NumPy array of shape (n_tickers, n_features).
+        training_period_days: Number of calendar days used for the training
+            window (default 90 ≈ 3 months).  The parameter is accepted here
+            for API compatibility; the actual data slicing is performed by the
+            caller before building the feature matrix.
 
     Steps:
       1. RobustScaler — handles financial outliers better than StandardScaler
@@ -304,6 +413,146 @@ def _map_centroids_to_labels(centers: np.ndarray) -> dict[int, str]:
     return label_map
 
 
+def _map_enhanced_centroids_to_labels(centers: np.ndarray) -> dict[int, str]:
+    """
+    Map cluster IDs to semantic labels using 4D enhanced feature centroids.
+
+    This function is designed for the new 4D feature vector:
+        [log_returns, volatility, rsi_relative, volume_impact]
+
+    Labeling rules (applied in priority order):
+        1. "High Risk"      — volatility_zscore > 2 OR abs(log_returns) > 0.05
+        2. "Beli Saat Turun"— log_returns < 0 AND rsi_relative < 0.4 AND vol_z < 2
+        3. "Momentum"       — log_returns > 0 AND vol_z < 1.5 AND volume_impact > 1.0
+        4. "Konsolidasi"    — fallback for remaining clusters
+
+    Deduplication: if two clusters receive the same label, the one with the
+    weaker signal (lower score for that label) is reassigned to the next
+    best-fitting label.
+
+    Sanity check: ensures all 4 labels are assigned exactly once.
+
+    Args:
+        centers: Array of shape (n_clusters, 4) with columns
+                 [log_returns, volatility, rsi_relative, volume_impact]
+
+    Returns:
+        dict mapping cluster_id (int) -> label (str)
+    """
+    _ENHANCED_LABELS = ["High Risk", "Beli Saat Turun", "Momentum", "Konsolidasi"]
+
+    n = len(centers)
+
+    # ── Step 1: Compute volatility Z-scores across all centroids ──────────
+    vols = centers[:, 1]
+    vol_mean = float(np.mean(vols))
+    vol_std  = float(np.std(vols))
+    vol_zscores = (vols - vol_mean) / (vol_std + 1e-9)
+
+    # ── Step 2: Score each cluster against each label ─────────────────────
+    # We compute a numeric "fit score" for each (cluster, label) pair so we
+    # can resolve ties / duplicates deterministically.
+    def _score(i: int, candidate_label: str) -> float:
+        log_ret    = float(centers[i, 0])
+        vol_z      = float(vol_zscores[i])
+        rsi_rel    = float(centers[i, 2])
+        vol_impact = float(centers[i, 3])
+
+        if candidate_label == "High Risk":
+            # Higher score = more extreme volatility or returns
+            return max(vol_z, abs(log_ret) / 0.05)
+
+        elif candidate_label == "Beli Saat Turun":
+            # Higher score = more oversold + negative momentum
+            if log_ret < 0 and rsi_rel < 0.4 and vol_z < 2:
+                return (-log_ret) + (0.4 - rsi_rel) + (2.0 - vol_z)
+            return -1.0  # does not qualify
+
+        elif candidate_label == "Momentum":
+            # Higher score = stronger positive momentum + volume
+            if log_ret > 0 and vol_z < 1.5 and vol_impact > 1.0:
+                return log_ret + (vol_impact - 1.0) + (1.5 - vol_z)
+            return -1.0  # does not qualify
+
+        else:  # "Konsolidasi" — fallback, always qualifies
+            # Prefer clusters with near-zero returns and low volatility
+            return 1.0 / (abs(log_ret) + abs(vol_z) + 0.1)
+
+    # ── Step 3: Assign labels in priority order ───────────────────────────
+    # Priority: High Risk > Beli Saat Turun > Momentum > Konsolidasi
+    label_map: dict[int, str] = {}
+    assigned_labels: set[str] = set()
+    assigned_clusters: set[int] = set()
+
+    for priority_label in _ENHANCED_LABELS:
+        # Find the best unassigned cluster for this label
+        best_id    = -1
+        best_score = -float("inf")
+
+        for i in range(n):
+            if i in assigned_clusters:
+                continue
+            s = _score(i, priority_label)
+            if s > best_score:
+                best_score = s
+                best_id    = i
+
+        if best_id >= 0 and best_score > -1.0:
+            label_map[best_id]       = priority_label
+            assigned_labels.add(priority_label)
+            assigned_clusters.add(best_id)
+
+    # ── Step 4: Assign "Konsolidasi" to any remaining unassigned clusters ─
+    for i in range(n):
+        if i not in assigned_clusters:
+            label_map[i] = "Konsolidasi"
+            assigned_clusters.add(i)
+
+    # ── Step 5: Sanity check — ensure all 4 labels assigned exactly once ──
+    required_labels = set(_ENHANCED_LABELS)
+    assigned_set    = set(label_map.values())
+    missing_labels  = required_labels - assigned_set
+
+    if missing_labels:
+        logger.warning(
+            "_map_enhanced_centroids_to_labels: missing labels %s — "
+            "reassigning via fallback",
+            missing_labels,
+        )
+        # Find clusters that have duplicate labels and reassign them
+        from collections import Counter
+        label_counts = Counter(label_map.values())
+        duplicate_labels = {lbl for lbl, cnt in label_counts.items() if cnt > 1}
+
+        for missing in list(missing_labels):
+            # Among clusters with a duplicate label, pick the one with the
+            # lowest score for its current label and reassign it
+            best_candidate_id    = -1
+            best_candidate_score = float("inf")
+
+            for cid, lbl in label_map.items():
+                if lbl in duplicate_labels:
+                    s = _score(cid, lbl)
+                    if s < best_candidate_score:
+                        best_candidate_score = s
+                        best_candidate_id    = cid
+
+            if best_candidate_id >= 0:
+                old_label = label_map[best_candidate_id]
+                label_map[best_candidate_id] = missing
+                logger.debug(
+                    "Reassigned cluster %d from '%s' to '%s'",
+                    best_candidate_id, old_label, missing,
+                )
+                # Update duplicate tracking
+                label_counts[old_label] -= 1
+                if label_counts[old_label] <= 1:
+                    duplicate_labels.discard(old_label)
+
+    logger.debug("Enhanced centroid label map: %s", label_map)
+    return label_map
+
+
 # ---------------------------------------------------------------------------
 # Reasoning generator  (Indonesian analyst brief)
 # ---------------------------------------------------------------------------
@@ -354,6 +603,17 @@ def generate_reasoning(
             f"Strategi: akumulasi bertahap dengan manajemen risiko ketat (stop-loss di bawah support).{macro_suffix}"
         )
 
+    elif label == "Beli Saat Turun":
+        strategy = "Akumulasi bertahap di area support — harga sedang terkoreksi."
+        bb_note  = "mendekati batas bawah Bollinger Band" if (bb_pos is not None and bb_pos < 0.35) else "di area support teknikal"
+        reasoning = (
+            f"Saham berada di zona {rsi_str} yang mengindikasikan kondisi oversold, "
+            f"dengan posisi harga {bb_note} — potensi technical bounce cukup tinggi. "
+            f"Sinyal MACD saat ini {macd_cross}. "
+            f"Volume perdagangan {vol_str}. "
+            f"Strategi: akumulasi bertahap saat harga turun dengan stop-loss ketat di bawah level support.{macro_suffix}"
+        )
+
     elif label == "Trending / Momentum":
         if ema20 is not None and ema50 is not None:
             above_ema = "harga berada di atas EMA20 dan EMA50"
@@ -369,6 +629,21 @@ def generate_reasoning(
             f"Strategi: pertahankan posisi dengan trailing stop untuk proteksi profit.{macro_suffix}"
         )
 
+    elif label == "Momentum":
+        if ema20 is not None and ema50 is not None:
+            above_ema = "harga berada di atas EMA20 dan EMA50"
+        elif ema20 is not None:
+            above_ema = "harga berada di atas EMA20"
+        else:
+            above_ema = "saham dalam tren naik"
+        strategy  = "Ikuti momentum — pertahankan posisi dengan trailing stop."
+        reasoning = (
+            f"Saham menunjukkan momentum bullish yang kuat: {above_ema}, "
+            f"MACD {macd_cross}, dan {rsi_str} berada di zona sehat. "
+            f"Volume perdagangan {vol_str} mengkonfirmasi kekuatan tren. "
+            f"Strategi: ikuti momentum dengan trailing stop untuk mengamankan profit.{macro_suffix}"
+        )
+
     elif label == "Hold / Sideways":
         strategy  = "Tahan posisi — tunggu konfirmasi arah sebelum menambah."
         reasoning = (
@@ -377,6 +652,25 @@ def generate_reasoning(
             f"Bollinger Band menyempit mengindikasikan volatilitas rendah — "
             f"potensi breakout di depan. Volume perdagangan {vol_str}. "
             f"Tunggu konfirmasi arah yang jelas sebelum menambah posisi.{macro_suffix}"
+        )
+
+    elif label == "Konsolidasi":
+        strategy  = "Tunggu konfirmasi breakout — saham sedang konsolidasi."
+        reasoning = (
+            f"Saham bergerak dalam fase konsolidasi dengan {rsi_str} di zona netral. "
+            f"MACD {macd_cross} tanpa sinyal arah yang kuat. "
+            f"Volatilitas rendah mengindikasikan pasar sedang menunggu katalis — "
+            f"potensi breakout ke atas atau bawah. Volume perdagangan {vol_str}. "
+            f"Strategi: tunggu konfirmasi breakout sebelum mengambil posisi baru.{macro_suffix}"
+        )
+
+    elif label == "High Risk":
+        strategy  = "Hindari atau kurangi eksposur — volatilitas tinggi."
+        reasoning = (
+            f"Saham menunjukkan sinyal risiko tinggi: {rsi_str} berada di zona ekstrem, "
+            f"volatilitas di atas rata-rata dengan pergerakan harga yang tidak stabil, "
+            f"MACD {macd_cross}, dan volume {vol_str}. "
+            f"Hindari entry baru dan pertimbangkan untuk mengurangi eksposur hingga kondisi membaik.{macro_suffix}"
         )
 
     else:  # High Risk / Avoid
@@ -406,10 +700,16 @@ def calculate_risk_management(
     """
     # ── 1. Recommended Style ──────────────────────────────────────────────
     style_map = {
+        # Original labels
         "Trending / Momentum": "Swing / Day Trade",
         "Buy the Dip":          "Swing / Investasi",
         "Hold / Sideways":      "Wait & See / Swing",
         "High Risk / Avoid":    "Avoid / Scalping",
+        # New Indonesian alias labels
+        "Momentum":             "Swing / Day Trade",
+        "Beli Saat Turun":      "Swing / Investasi",
+        "Konsolidasi":          "Wait & See / Swing",
+        "High Risk":            "Avoid / Scalping",
     }
     style = style_map.get(label, "Swing Trade")
 
@@ -458,11 +758,11 @@ def get_buy_hold_sell_signal(
         }
     """
     # ── 1. Base signal dari label ──────────────────────────────────────────
-    if label in ["Buy the Dip", "Trending / Momentum"]:
+    if label in ["Buy the Dip", "Trending / Momentum", "Beli Saat Turun", "Momentum"]:
         base_signal = "BUY"
-    elif label == "Hold / Sideways":
+    elif label in ["Hold / Sideways", "Konsolidasi"]:
         base_signal = "HOLD"
-    else:  # High Risk / Avoid
+    else:  # High Risk / Avoid, High Risk
         base_signal = "SELL"
     
     # ── 2. Strength dari XGBoost confidence ────────────────────────────────
