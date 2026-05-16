@@ -143,7 +143,7 @@ export default function TradePlanTable({ plan, ticker, confidenceScore, isHighCo
                 <th className="py-2 px-3 font-heading-table text-on-surface-variant uppercase">Entry Zone</th>
                 <th className="py-2 px-3 font-heading-table text-on-surface-variant uppercase">Stop Loss</th>
                 <th className="py-2 px-3 font-heading-table text-on-surface-variant uppercase text-semantic-bullish">TP1 (Fib 0.618)</th>
-                <th className="py-2 px-3 font-heading-table text-on-surface-variant uppercase text-semantic-bullish">TP2 (Fib 1.618)</th>
+                <th className="py-2 px-3 font-heading-table text-on-surface-variant uppercase text-semantic-bullish">TP2 (Fib 1.0)</th>
                 <th className="py-2 px-3 font-heading-table text-on-surface-variant uppercase text-right">Risk/Reward</th>
               </tr>
             </thead>
@@ -182,7 +182,7 @@ export default function TradePlanTable({ plan, ticker, confidenceScore, isHighCo
               <span className="text-[11px] font-data-mono text-semantic-bullish font-bold">{formatPrice(plan.take_profit_1)}</span>
             </div>
             <div className="flex justify-between items-center p-2 bg-surface-container-high rounded">
-              <span className="text-[9px] text-semantic-bullish uppercase font-bold">TP2 (Fib 1.618)</span>
+              <span className="text-[9px] text-semantic-bullish uppercase font-bold">TP2 (Fib 1.0)</span>
               <span className="text-[11px] font-data-mono text-semantic-bullish">{formatPrice(plan.take_profit_2)}</span>
             </div>
           </div>
