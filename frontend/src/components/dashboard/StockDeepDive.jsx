@@ -224,7 +224,7 @@ export default function StockDeepDive({ stock, onClose }) {
                 <p className="font-body-standard text-body-standard text-on-surface leading-relaxed text-sm bg-surface-container-high/30 p-4 rounded-lg border border-outline-variant/30">
                   {stock.reasoning}
                   <span className="block mt-2 text-[11px] text-on-surface-variant italic">
-                    💡 Catatan: {stock.cluster_label === 'High Risk / Avoid' ? 'Waspadai volatilitas tinggi. Disarankan untuk wait and see.' : 'Gunakan strategi cicil bertahap (scaling-in) untuk mendapatkan harga rata-rata yang optimal.'}
+                    💡 Catatan: {(stock.cluster_label === 'High Risk' || stock.cluster_label === 'High Risk / Avoid') ? 'Waspadai volatilitas tinggi. Disarankan untuk wait and see.' : 'Gunakan strategi cicil bertahap (scaling-in) untuk mendapatkan harga rata-rata yang optimal.'}
                   </span>
                 </p>
               </div>

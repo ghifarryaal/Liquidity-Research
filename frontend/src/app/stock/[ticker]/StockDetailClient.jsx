@@ -252,7 +252,7 @@ export default function StockDetailClient() {
             <span className="material-symbols-outlined text-primary text-lg sm:text-xl">fact_check</span>
             Historical Performance (Backtest)
           </h3>
-          <BacktestScorecard backtest={stock.backtest} />
+          <BacktestScorecard backtest={stock.backtest} ticker={stock.ticker} />
         </section>
 
         {/* Footer Disclaimer */}

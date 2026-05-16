@@ -21,23 +21,48 @@ const DEFAULT_SUGGESTIONS = [
 
 /** Cluster-specific suggested questions */
 const CLUSTER_SUGGESTIONS = {
-  'Buy the Dip': [
-    'Jelaskan kenapa saham ini masuk klaster Buy the Dip?',
+  'Beli Saat Turun': [
+    'Jelaskan kenapa saham ini masuk klaster Beli Saat Turun?',
     'Kapan waktu terbaik untuk mulai akumulasi saham oversold?',
     'Jelaskan pola reversal yang biasa muncul setelah oversold',
     'Apa itu divergence bullish di RSI?',
   ],
-  'Trending': [
+  // Legacy alias
+  'Buy the Dip': [
+    'Jelaskan kenapa saham ini masuk klaster Beli Saat Turun?',
+    'Kapan waktu terbaik untuk mulai akumulasi saham oversold?',
+    'Jelaskan pola reversal yang biasa muncul setelah oversold',
+    'Apa itu divergence bullish di RSI?',
+  ],
+  'Momentum': [
     'Bagaimana cara mengikuti tren naik dengan aman?',
     'Jelaskan kenapa EMA20 > EMA50 itu bullish?',
     'Kapan tren naik biasanya berakhir?',
     'Apa itu momentum dan bagaimana mengukurnya?',
+  ],
+  'Trending / Momentum': [
+    'Bagaimana cara mengikuti tren naik dengan aman?',
+    'Jelaskan kenapa EMA20 > EMA50 itu bullish?',
+    'Kapan tren naik biasanya berakhir?',
+    'Apa itu momentum dan bagaimana mengukurnya?',
+  ],
+  'Konsolidasi': [
+    'Apa strategi terbaik untuk saham konsolidasi?',
+    'Jelaskan konsep akumulasi bertahap (Dollar Cost Averaging)',
+    'Bagaimana Bollinger Bands membantu di pasar sideways?',
+    'Apa yang dimaksud dengan support dan resistance?',
   ],
   'Sideways / Accumulation': [
     'Apa strategi terbaik untuk saham sideways?',
     'Jelaskan konsep akumulasi bertahap (Dollar Cost Averaging)',
     'Bagaimana Bollinger Bands membantu di pasar sideways?',
     'Apa yang dimaksud dengan support dan resistance?',
+  ],
+  'High Risk': [
+    'Mengapa saham ini dikategorikan High Risk?',
+    'Apa tanda-tanda saham sedang dimanipulasi bandar?',
+    'Bagaimana cara mengukur risiko sebelum masuk posisi?',
+    'Jelaskan pentingnya manajemen risiko dalam trading',
   ],
   'High Risk / Avoid': [
     'Mengapa saham ini dikategorikan High Risk?',

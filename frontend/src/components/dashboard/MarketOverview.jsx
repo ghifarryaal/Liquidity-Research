@@ -152,36 +152,36 @@ export default function MarketOverview({ stocks, clusterSummary, macro, macroSen
         </div>
         
         <div className="flex-1 grid grid-cols-2 gap-2 md:gap-4 items-center">
-          {/* Bullish */}
+          {/* Bullish Trend */}
           <div className="flex flex-col">
             <span className="text-2xl md:text-3xl font-bold text-semantic-bullish">
-              {clusterSummary?.['Trending / Momentum'] || 0}
+              {clusterSummary?.['Momentum'] || clusterSummary?.['Trending / Momentum'] || 0}
             </span>
             <span className="text-[8px] md:text-[9px] text-semantic-bullish font-bold uppercase tracking-wider">Bullish Trend</span>
           </div>
           
-          {/* Bearish */}
+          {/* High Risk */}
           <div className="flex flex-col">
             <span className="text-2xl md:text-3xl font-bold text-semantic-bearish">
-              {clusterSummary?.['High Risk / Avoid'] || 0}
+              {clusterSummary?.['High Risk'] || clusterSummary?.['High Risk / Avoid'] || 0}
             </span>
             <span className="text-[8px] md:text-[9px] text-semantic-bearish font-bold uppercase tracking-wider">Bearish / Risk</span>
           </div>
           
-          {/* Buy the Dip */}
+          {/* Beli Saat Turun */}
           <div className="flex flex-col">
             <span className="text-2xl md:text-3xl font-bold text-cyan-400">
-              {clusterSummary?.['Buy the Dip'] || 0}
+              {clusterSummary?.['Beli Saat Turun'] || clusterSummary?.['Buy the Dip'] || 0}
             </span>
-            <span className="text-[8px] md:text-[9px] text-cyan-400 font-bold uppercase tracking-wider">Buy the Dip</span>
+            <span className="text-[8px] md:text-[9px] text-cyan-400 font-bold uppercase tracking-wider">Beli Saat Turun</span>
           </div>
           
-          {/* Sideways */}
+          {/* Konsolidasi */}
           <div className="flex flex-col">
             <span className="text-2xl md:text-3xl font-bold text-slate-400">
-              {clusterSummary?.['Hold / Sideways'] || 0}
+              {clusterSummary?.['Konsolidasi'] || clusterSummary?.['Hold / Sideways'] || 0}
             </span>
-            <span className="text-[8px] md:text-[9px] text-slate-400 font-bold uppercase tracking-wider">Sideways / Hold</span>
+            <span className="text-[8px] md:text-[9px] text-slate-400 font-bold uppercase tracking-wider">Konsolidasi</span>
           </div>
         </div>
         

@@ -1,287 +1,215 @@
 # 📈 LiquidityResearch — AI-Powered Indonesian Stock Analysis
 
-> Platform analisis saham Indonesia (LQ45, KOMPAS100, DBX) berbasis Machine Learning — clustering otomatis, trade plan AI, dan backtesting real-time. **Tanpa login. Gratis. Open source.**
+> Platform analisis saham Indonesia (LQ45, KOMPAS100, DBX) berbasis Machine Learning — K-Means clustering 4D, trade plan otomatis, backtest engine dengan stop loss & trailing stop, dan AI Mentor berbasis Gemini. **Tanpa login. Gratis. Open source.**
 
 [![Next.js](https://img.shields.io/badge/Next.js-15.5-black)](https://nextjs.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688)](https://fastapi.tiangolo.com/)
-[![Python](https://img.shields.io/badge/Python-3.11-blue)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.111-009688)](https://fastapi.tiangolo.com/)
+[![Python](https://img.shields.io/badge/Python-3.12-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-Visit%20Now-brightgreen)](https://quant.indonesiastockanalyst.my.id)
 
-**🔗 [Live Demo](https://quant.indonesiastockanalyst.my.id) · [API Docs](https://api-quant.indonesiastockanalyst.my.id/docs) · [Architecture](docs/ARCHITECTURE.md) · [Innovation](docs/INNOVATION.md)**
+**🔗 [Live Demo](https://quant.indonesiastockanalyst.my.id) · [API Docs](https://api-quant.indonesiastockanalyst.my.id/docs)**
 
-## 🌟 Features
+---
 
-### 🤖 AI-Powered Conversational Assistant (NEW!)
-- **Ask Questions in Natural Language**: "Why is this stock classified as Momentum?"
-- **Context-Aware Responses**: AI understands your stock's technical indicators and ML classification
-- **Multi-Intent Recognition**: Handles questions about risk, timing, strategy, and more
-- **Confidence Scoring**: Know how certain the AI is about each answer
-- **Educational**: Learn while you analyze
+## 🌟 Fitur Utama
 
-### 🧠 Hybrid Machine Learning
-- **Unsupervised Learning (K-Means)**: Discovers natural patterns in stock behavior
-- **Supervised Learning (Random Forest)**: Validates classifications with confidence scores
-- **Transparent Reasoning**: Understand WHY stocks are classified, not just HOW
+### 🧠 Advanced K-Means Clustering (4D Feature Vector)
+- **4 dimensi fitur**: Log Returns, Volatility (20-day), RSI Relative, Volume Impact
+- **Automated labeling** dengan priority rules: `High Risk` → `Beli Saat Turun` → `Momentum` → `Konsolidasi`
+- **Training window 90 hari** terpisah dari backtest window 180 hari
+- **Winsorization** otomatis untuk outlier (Z-score > 3)
+- **Backward-compatible**: semua field API lama tetap tersedia
 
-### 📊 Intelligent Stock Clustering
-- **Buy the Dip**: Oversold stocks with strong fundamentals
-- **Momentum**: Strong uptrend with volume confirmation
-- **Breakout**: Consolidation breakout patterns
-- **Reversal**: Trend reversal signals
-- **Consolidation**: Range-bound trading opportunities
-- **Avoid**: Weak signals, better opportunities elsewhere
+### 📊 Enhanced Backtest Engine
+- **Stop Loss** otomatis di 3% bawah entry
+- **Trailing Stop** aktif setelah profit 5%, update di setiap high baru
+- **Metrik lengkap**: Sharpe Ratio (annualized), Max Drawdown, Win Rate, Equity Curve
+- **Visualisasi PNG**: price chart dengan cluster background + equity curve panel
+- Simulasi modal awal Rp 100 juta
 
-### 📈 Comprehensive Technical Analysis
-- **20+ Technical Indicators**: RSI, MACD, Bollinger Bands, EMA, ATR, Volume Ratio
-- **Interactive Charts**: Real-time candlestick charts with technical overlays
-- **Historical Data**: 180-day analysis window
-- **Real-Time Backtesting**: See historical performance for each recommendation
+### 🤖 AI Mentor (Gemini Streaming)
+- Chat real-time dengan konteks saham yang sedang dilihat
+- Suggested questions per cluster label
+- Streaming response dengan markdown rendering
+- Rate limiting & session management
 
-### 💼 Automated Trade Planning
-- **AI-Generated Plans**: Entry, stop-loss, and take-profit levels
-- **Risk Management**: Position sizing and risk/reward calculations
-- **Strategy Recommendations**: Customized for each stock's characteristics
-- **Execution Guidance**: Step-by-step trading instructions
+### 📈 Dashboard Real-Time (10+ Widget)
+- **Macro Sentiment**: DXY, US10Y, Risk-On/Off regime
+- **Panic Meter**: Fear/Greed index dari macro + market breadth
+- **Market Breadth**: Advance/Decline ratio
+- **Sector Momentum**: Performa rata-rata per sektor
+- **World Indices & Commodities**: Live dari Yahoo Finance
+- **XGBoost Validation**: Akurasi 30-hari supervised model
+- **Signal Distribution Bar**: Distribusi BUY/HOLD/SELL real-time
 
-### 🌍 Adaptive Macro Weighting
-- **Market Sentiment Analysis**: Aggregate market-wide indicators
-- **Panic Meter**: Real-time fear/greed index
-- **Dynamic Adjustments**: Recommendations adapt to market conditions
+### 💼 Trade Plan Otomatis
+- Entry price, Stop Loss (ATR-based), Take Profit 1 & 2 (Fibonacci)
+- Risk/Reward ratio kalkulasi otomatis
+- Disesuaikan per cluster label dan kondisi makro
 
-### 🎓 Educational First
-- **Transparent AI**: Understand the reasoning behind every recommendation
-- **Learning Resources**: Built-in explanations and strategy guides
-- **No "Buy/Sell" Buttons**: Encourages informed decision-making
-- **Risk Education**: Learn proper risk management
+### 🔬 Property-Based Testing
+- 14 properties via Hypothesis (max_examples=100)
+- 57 unit + integration tests, semua passing
+- Coverage: feature engineering, clustering, backtest engine, API endpoints
 
-### 🔒 Privacy-First Design
-- **No Login Required**: Zero-friction access to all features
-- **No Data Collection**: Your analysis stays private
-- **No Tracking**: Respects user privacy
-- **Open Access**: Democratizing sophisticated analysis
+---
 
-## 🏗️ Architecture
+## 🏗️ Arsitektur
 
 ```
-┌─────────────┐         ┌──────────────┐         ┌─────────────┐
-│   Next.js   │ ◄─────► │   FastAPI    │ ◄─────► │  Yahoo      │
-│   Frontend  │  REST   │   Backend    │  API    │  Finance    │
-│             │         │              │         │             │
-│  - React 19 │         │  - Sklearn   │         │  - OHLCV    │
-│  - Tailwind │         │  - Pandas    │         │  - Real-time│
-│  - SWR      │         │  - NumPy     │         │             │
-└─────────────┘         └──────────────┘         └─────────────┘
-      │                        │
-      │                        │
-      ▼                        ▼
-┌─────────────┐         ┌──────────────┐
-│   Vercel    │         │     VPS      │
-│   Hosting   │         │   (Docker)   │
-└─────────────┘         └──────────────┘
+Browser (HTTPS)
+    │
+    ├── Cloudflare Pages → quant.indonesiastockanalyst.my.id  (Next.js 15)
+    │
+    └── Cloudflare DNS  → api-quant.indonesiastockanalyst.my.id
+                              │
+                         Hostinger VPS
+                         Nginx (reverse proxy)
+                              │
+                         Docker: FastAPI (port 8001)
 ```
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    ML Pipeline                          │
+│                                                         │
+│  yfinance OHLCV → Feature Engineering (4D) →           │
+│  K-Means Clustering → Automated Labeling →             │
+│  XGBoost Confidence → Trade Plan → Backtest            │
+└─────────────────────────────────────────────────────────┘
+```
+
+---
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+ and npm
-- Python 3.11+
-- Docker (optional)
+- Node.js 18+ dan npm
+- Python 3.12+
 
-### Frontend Setup
+### Frontend
 
 ```bash
 cd frontend
 npm install
 npm run dev
+# Buka http://localhost:3000
 ```
 
-Visit `http://localhost:3000`
-
-### Backend Setup
+### Backend
 
 ```bash
 cd backend
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate
 pip install -r requirements.txt
-uvicorn app.main:app --reload
+
+# Buat file .env
+echo "GEMINI_API_KEY=your_key_here" > .env
+echo "ALLOWED_ORIGINS=http://localhost:3000" >> .env
+
+uvicorn app.main:app --reload --port 8000
+# API docs: http://localhost:8000/docs
 ```
 
-API available at `http://localhost:8001`
-
-### Docker Setup (Recommended)
+### Docker
 
 ```bash
-docker-compose up -d
+docker-compose up -d --build
 ```
-
-## 📁 Project Structure
-
-```
-├── frontend/                 # Next.js frontend
-│   ├── src/
-│   │   ├── app/             # App router pages
-│   │   ├── components/      # React components
-│   │   ├── hooks/           # Custom hooks (SWR)
-│   │   ├── lib/             # Utilities & API client
-│   │   └── constants/       # Configuration
-│   └── public/              # Static assets
-│
-├── backend/                 # FastAPI backend
-│   ├── app/
-│   │   ├── routers/        # API endpoints
-│   │   ├── services/       # Business logic
-│   │   │   ├── clustering_engine.py    # ML clustering
-│   │   │   ├── supervised_model.py     # Confidence scoring
-│   │   │   ├── backtest_engine.py      # Strategy validation
-│   │   │   ├── trade_plan_engine.py    # Trade planning
-│   │   │   └── feature_engineering.py  # Technical indicators
-│   │   ├── models/         # Data schemas
-│   │   └── constants/      # Stock tickers
-│   └── requirements.txt
-│
-└── docker-compose.yml      # Container orchestration
-```
-
-## 🔧 Tech Stack
-
-### Frontend
-- **Framework**: Next.js 15 (App Router)
-- **UI**: React 19, Tailwind CSS 4
-- **Charts**: Lightweight Charts
-- **Data Fetching**: SWR (stale-while-revalidate)
-- **Animations**: Framer Motion
-
-### Backend
-- **Framework**: FastAPI
-- **ML**: Scikit-learn, Pandas, NumPy
-- **Data**: Yahoo Finance API (yfinance)
-- **Validation**: Pydantic
-
-### Infrastructure
-- **Frontend Hosting**: Vercel
-- **Backend Hosting**: VPS with Docker
-- **Reverse Proxy**: Nginx
-- **SSL**: Cloudflare
-
-## 📊 Machine Learning Pipeline
-
-### 1. Data Collection
-- Fetch 180 days of OHLCV data from Yahoo Finance
-- Calculate 20+ technical indicators
-- Normalize features for ML processing
-
-### 2. Clustering (Unsupervised)
-```python
-# K-Means clustering with 6 strategies
-- Buy the Dip (oversold, strong fundamentals)
-- Momentum (strong uptrend)
-- Breakout (consolidation breakout)
-- Reversal (trend reversal signals)
-- Consolidation (range-bound)
-- Avoid (weak signals)
-```
-
-### 3. Supervised Learning
-- Random Forest classifier for confidence scoring
-- Features: RSI, MACD, volume, price action
-- Output: Confidence percentage (0-100%)
-
-### 4. Backtesting
-- Simulate trades over historical data
-- Calculate win rate, profit factor, max drawdown
-- Validate strategy effectiveness
-
-## 🎯 API Endpoints
-
-### Market Overview
-```http
-GET /api/market-overview?index=lq45
-```
-
-### Stock Detail
-```http
-GET /api/stock/{ticker}?period_days=180
-```
-
-### Cluster Analysis
-```http
-GET /api/clusters?index=lq45
-```
-
-## 🌐 Live Demo
-
-- **Frontend**: https://quant.indonesiastockanalyst.my.id
-- **API Docs**: https://api-quant.indonesiastockanalyst.my.id/docs
-
-> Coba langsung: buka dashboard → pilih saham LQ45 → lihat analisis AI + trade plan otomatis
-
-## 📸 Screenshots
-
-### Dashboard — Market Overview
-Tampilan utama dengan 9 widget: Macro Sentiment, Market Momentum, Market Breadth, Sector Leadership, World Indices, Commodities, XGBoost Validation, Panic Meter, dan AI Clustering.
-
-### Stock Detail — Analisis Lengkap
-Setiap saham memiliki halaman detail dengan:
-- Candlestick chart interaktif + EMA 20/50 + Bollinger Bands
-- Technical Snapshot (RSI, MACD, Volume Ratio, ATR)
-- AI Analyst Desk Briefing dengan reasoning transparan
-- Trade Plan otomatis (Entry, Stop Loss, TP1, TP2, R:R)
-- Backtest Scorecard historis 6 bulan
-
-## 🧪 Testing
-
-### Frontend Tests
-```bash
-cd frontend
-npm run test
-```
-
-### Backend Tests
-```bash
-cd backend
-pytest tests/
-```
-
-## 📈 Performance
-
-- **First Load**: < 2 seconds
-- **API Response**: < 500ms average
-- **Lighthouse Score**: 95+ (Performance, Accessibility, Best Practices)
-
-## 🔐 Security
-
-- HTTPS enforced
-- CORS configured
-- Input validation with Pydantic
-- Rate limiting on API endpoints
-- No sensitive data stored
-
-## 🤝 Contributing
-
-Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details.
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 👨‍💻 Author
-
-**Ghifar Ryal**
-- GitHub: [@ghifarryaal](https://github.com/ghifarryaal)
-
-## 🙏 Acknowledgments
-
-- Yahoo Finance for market data
-- Indonesian Stock Exchange (IDX)
-- Scikit-learn community
-- Next.js team
-
-## 📞 Contact
-
-For questions or feedback, please open an issue or contact via GitHub.
 
 ---
 
-**⚠️ Disclaimer**: This platform is for educational purposes only. Not financial advice. Always do your own research before investing.
+## 📁 Struktur Project
+
+```
+├── frontend/
+│   └── src/
+│       ├── app/                    # Next.js App Router
+│       ├── components/
+│       │   ├── dashboard/          # MarketOverview, InsightFeed, BacktestScorecard, dll
+│       │   ├── charts/             # CandlestickChart (lightweight-charts)
+│       │   └── ui/                 # ChatWidget (AI Mentor)
+│       ├── hooks/                  # useClusterData, useStockDetail (SWR)
+│       ├── lib/                    # api.js, formatters.js
+│       └── constants/              # clusterConfig.js (single source of truth)
+│
+├── backend/
+│   └── app/
+│       ├── routers/
+│       │   └── cluster.py          # GET /cluster/{index}, POST /cluster/backtest
+│       ├── services/
+│       │   ├── clustering_engine.py    # K-Means + automated labeling
+│       │   ├── feature_engineering.py  # 4D feature vector
+│       │   ├── backtest_engine.py      # TradingSimulator + run_enhanced_backtest
+│       │   ├── visualization.py        # Matplotlib backtest charts
+│       │   ├── supervised_model.py     # XGBoost confidence scoring
+│       │   ├── trade_plan_engine.py    # ATR + Fibonacci trade plan
+│       │   ├── macro_weighting.py      # DXY, US10Y, world indices
+│       │   └── ai_assistant.py         # Gemini integration
+│       └── models/schemas.py           # Pydantic models
+│
+└── backend/tests/
+    ├── test_services.py            # Unit tests
+    ├── test_api.py                 # Integration tests
+    └── property/                   # Hypothesis property-based tests
+```
+
+---
+
+## 🔧 Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Frontend | Next.js 15, React 19, Tailwind CSS 4, Framer Motion |
+| Charts | Lightweight Charts v5, Matplotlib (backtest PNG) |
+| Data Fetching | SWR (stale-while-revalidate) |
+| Backend | FastAPI, Uvicorn |
+| ML | Scikit-learn (K-Means, RobustScaler), XGBoost, ta |
+| Data | yfinance, Pandas, NumPy |
+| AI | Google Gemini (gemini-flash-latest) |
+| Testing | pytest, Hypothesis, pytest-asyncio |
+| Infrastructure | Docker, Nginx, Cloudflare Pages, Hostinger VPS |
+
+---
+
+## 🎯 API Endpoints
+
+```http
+GET  /api/cluster/{lq45|kompas100|dbx}?period_days=180
+GET  /api/stock/{ticker}?period_days=180
+GET  /api/macro
+GET  /api/cluster/training-window-info
+POST /api/cluster/backtest
+GET  /api/chat  (SSE streaming)
+GET  /docs      (Swagger UI)
+```
+
+---
+
+## 🧪 Testing
+
+```bash
+cd backend
+pip install -r requirements-dev.txt
+pytest tests/ -v
+# 57 tests, semua passing dalam ~23 detik
+```
+
+---
+
+## 🌐 Live Demo
+
+- **App**: https://quant.indonesiastockanalyst.my.id
+- **API Docs**: https://api-quant.indonesiastockanalyst.my.id/docs
+
+---
+
+## 👨‍💻 Author
+
+**Ghifar Ryal** · [@ghifarryaal](https://github.com/ghifarryaal)
+
+---
+
+**⚠️ Disclaimer**: Platform ini hanya untuk tujuan edukasi. Bukan saran investasi. Selalu lakukan riset mandiri sebelum berinvestasi.

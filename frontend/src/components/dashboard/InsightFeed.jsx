@@ -9,10 +9,10 @@ import SignalDistribution from './SignalDistribution';
 
 const FILTER_OPTIONS = [
   { value: 'all', label: 'Semua', icon: 'grid_view' },
-  { value: 'Buy the Dip', label: 'Beli Saat Turun', icon: 'trending_down' },
-  { value: 'Trending / Momentum', label: 'Momentum', icon: 'trending_up' },
-  { value: 'Hold / Sideways', label: 'Konsolidasi', icon: 'trending_flat' },
-  { value: 'High Risk / Avoid', label: 'Risiko Tinggi', icon: 'warning' },
+  { value: 'Beli Saat Turun', label: 'Beli Saat Turun', icon: 'trending_down' },
+  { value: 'Momentum', label: 'Momentum', icon: 'trending_up' },
+  { value: 'Konsolidasi', label: 'Konsolidasi', icon: 'trending_flat' },
+  { value: 'High Risk', label: 'Risiko Tinggi', icon: 'warning' },
 ];
 
 const SIGNAL_FILTER_OPTIONS = [
@@ -29,10 +29,16 @@ const SORT_OPTIONS = [
 ];
 
 const CLUSTER_COLORS = {
-  'Buy the Dip':          { bg: 'rgba(0,255,178,0.1)',   border: 'rgba(0,255,178,0.3)',   text: '#00FFB2' },
-  'Trending / Momentum':  { bg: 'rgba(59,130,246,0.1)',  border: 'rgba(59,130,246,0.3)',  text: '#60a5fa' },
-  'Hold / Sideways':      { bg: 'rgba(148,163,184,0.1)', border: 'rgba(148,163,184,0.3)', text: '#94a3b8' },
-  'High Risk / Avoid':    { bg: 'rgba(239,68,68,0.1)',   border: 'rgba(239,68,68,0.3)',   text: '#f87171' },
+  // New labels
+  'Beli Saat Turun':    { bg: 'rgba(0,255,178,0.1)',   border: 'rgba(0,255,178,0.3)',   text: '#00FFB2' },
+  'Momentum':           { bg: 'rgba(59,130,246,0.1)',  border: 'rgba(59,130,246,0.3)',  text: '#60a5fa' },
+  'Konsolidasi':        { bg: 'rgba(148,163,184,0.1)', border: 'rgba(148,163,184,0.3)', text: '#94a3b8' },
+  'High Risk':          { bg: 'rgba(239,68,68,0.1)',   border: 'rgba(239,68,68,0.3)',   text: '#f87171' },
+  // Legacy aliases
+  'Buy the Dip':        { bg: 'rgba(0,255,178,0.1)',   border: 'rgba(0,255,178,0.3)',   text: '#00FFB2' },
+  'Trending / Momentum':{ bg: 'rgba(59,130,246,0.1)',  border: 'rgba(59,130,246,0.3)',  text: '#60a5fa' },
+  'Hold / Sideways':    { bg: 'rgba(148,163,184,0.1)', border: 'rgba(148,163,184,0.3)', text: '#94a3b8' },
+  'High Risk / Avoid':  { bg: 'rgba(239,68,68,0.1)',   border: 'rgba(239,68,68,0.3)',   text: '#f87171' },
 };
 
 function ClusterChip({ label }) {
